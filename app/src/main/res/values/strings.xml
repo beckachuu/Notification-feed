@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Androidfeed</string>
+    <string name="app_name">Android Feed</string>
 
     <string name="notification_access_label">@string/app_name</string>
 

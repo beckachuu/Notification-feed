@@ -5,32 +5,33 @@
 
 </div>
 
-## **ABOUT**
+## **About**
 
 Project for the Mobile Development course, hopefully will be finished by the end of the semester
 -v-'
 
 [//]: # (## **INSTALLATION**)
 
-## **FEATURES**
+## **Features**
 
 - Finished:
-
+    - Listen to notifications
 
 - Todo:
-    - Record all notifications that your phone receives
+    - Save notifications to database
     - Filter notifications by date
     - Save your favorite ones
     - Delete the less favorite ones
     - Notify if new notifications come from your favorite apps
     - Choose which apps to record from
     - Export logs
+    - Import data from log
 
-- Extra: Separate screens and services for Messenger
+- _Extra: Separate screens and services for Messenger_
 
-## **ACKNOWLEDGEMENTS**
+## **Acknowledgements**
 
-Part of this project is inpired by https://github.com/interactionlab/android-notification-log
+Part of this project is inspired by https://github.com/interactionlab/android-notification-log
 
 
 [//]: # (## **LICENSE**)
