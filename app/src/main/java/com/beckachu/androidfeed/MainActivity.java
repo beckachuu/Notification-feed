@@ -1,5 +1,10 @@
 package com.beckachu.androidfeed;
 
+import android.app.NotificationManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +17,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
+import com.beckachu.androidfeed.service.NotificationListener;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -27,7 +33,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        com.beckachu.androidfeed.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        /*
+         * Show "Notification access" setting screen (in case the app didn't have this permission
+         */
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        ComponentName componentName = new ComponentName(this, NotificationListener.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            if (!notificationManager.isNotificationListenerAccessGranted(componentName)) {
+                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                startActivity(intent);
+            }
+        }
+
+        startService(new Intent(this, NotificationListener.class));
+
+
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);

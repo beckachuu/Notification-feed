@@ -3,7 +3,6 @@ package com.beckachu.androidfeed.service;
 
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 import com.beckachu.androidfeed.misc.Const;
 
@@ -11,7 +10,6 @@ import com.beckachu.androidfeed.misc.Const;
 public class NotificationListener extends NotificationListenerService {
 
     private static NotificationListener instance = null;
-
 
     @Override
     public void onCreate() {
@@ -40,10 +38,6 @@ public class NotificationListener extends NotificationListenerService {
         try {
             NotificationHandler notificationHandler = new NotificationHandler(this);
             notificationHandler.handlePosted(sbn);
-
-            Log.v("GOT NOTI", sbn.getNotification().toString());
-            System.out.println(sbn.getNotification().toString());
-
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
         }
@@ -54,9 +48,6 @@ public class NotificationListener extends NotificationListenerService {
         try {
             NotificationHandler notificationHandler = new NotificationHandler(this);
             notificationHandler.handleRemoved(sbn, -1);
-
-            Log.v("REMOVED NOTI", sbn.getNotification().toString());
-            System.out.println(sbn.getNotification().toString());
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
         }
@@ -126,5 +117,4 @@ public class NotificationListener extends NotificationListenerService {
         }
         return null;
     }
-
 }
