@@ -1,91 +1,88 @@
 package com.beckachu.androidfeed;
 
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.Menu;
+import android.view.MenuItem;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.navigation.NavigationView;
-
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
+import com.google.android.material.navigation.NavigationView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        com.beckachu.androidfeed.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);
-        binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        // MENU
+        Menu menu = navigationView.getMenu();
+        populateNavDrawer(menu);
     }
 
+    private void populateNavDrawer(Menu menu) {
+        List<String> listTitle = new ArrayList<>();
+        listTitle.add("one");
+        listTitle.add("two");
+        listTitle.add("three");
 
-    private Map<String, Integer> idMap = new HashMap<>();
-    private int idCounter = 0;
+        // String itemTitle = "new_item";
+        for (String itemTitle : listTitle) {
+            int itemIconID = R.drawable.ic_menu_gallery;
 
-    private int generateIdFromString(String string) {
-        if (idMap.containsKey(string)) {
-            // If we have already generated an ID for this string, increment the counter
-            int count = idMap.get(string);
-            idMap.put(string, count + 1);
-            return idCounter++;
-        } else {
-            // If this is the first time we generate an ID for this string, add it to the map
-            idMap.put(string, 1);
-            return idCounter++;
+            // Generate a new unique ID based on a string
+            int newId = generateIdFromString(itemTitle);
+
+            // Add a new item to the menu using the generated ID
+            MenuItem newItem = menu.add(Menu.NONE, newId, Menu.NONE, itemTitle);
+            newItem.setIcon(itemIconID);
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
 
-        String itemTitle = "new_item";
-        int itemIconID = R.drawable.ic_menu_gallery;
+    Map<String, Integer> idMap = new HashMap<>();
 
-        // Generate a new unique ID based on a string
-        int newId = generateIdFromString(itemTitle);
-
-        // Add a new item to the menu using the generated ID
-        MenuItem newItem = menu.add(Menu.NONE, newId, Menu.NONE, itemTitle);
-        newItem.setIcon(itemIconID);
-
-        return true;
+    private int generateIdFromString(String string) {
+        int id = idMap.getOrDefault(string, 0);
+        if (idMap.containsKey(string)) {
+            id = id + 1;
+        }
+        idMap.put(string, id);
+        return id;
     }
 
     @Override
