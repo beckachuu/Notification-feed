@@ -17,7 +17,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
-import com.beckachu.androidfeed.service.NotificationListener;
+import com.beckachu.androidfeed.services.NotificationListener;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;

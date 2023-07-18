@@ -1,4 +1,4 @@
-package com.beckachu.androidfeed.misc;
+package com.beckachu.androidfeed.domain;
 
 
 import android.content.Context;
@@ -16,6 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String TABLE_NAME = "notifications_posted";
         public static final String COLUMN_NAME_CONTENT = "content";
     }
+    
 
     // Removed notifications
     public static abstract class RemovedEntry implements BaseColumns {

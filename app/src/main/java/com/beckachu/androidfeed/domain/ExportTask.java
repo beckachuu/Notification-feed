@@ -1,4 +1,4 @@
-package com.beckachu.androidfeed.misc;
+package com.beckachu.androidfeed.domain;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,10 +12,10 @@ import android.view.View;
 
 import androidx.core.content.FileProvider;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import com.beckachu.androidfeed.BuildConfig;
+import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.R;
+import com.beckachu.androidfeed.misc.Util;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;

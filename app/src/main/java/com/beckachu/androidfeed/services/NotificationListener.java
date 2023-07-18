@@ -1,4 +1,4 @@
-package com.beckachu.androidfeed.service;
+package com.beckachu.androidfeed.services;
 
 
 import android.service.notification.NotificationListenerService;
@@ -10,10 +10,12 @@ import com.beckachu.androidfeed.misc.Const;
 public class NotificationListener extends NotificationListenerService {
 
     private static NotificationListener instance = null;
+    NotificationHandler notificationHandler = null;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        this.notificationHandler = new NotificationHandler(this);
     }
 
     @Override
@@ -36,7 +38,6 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         try {
-            NotificationHandler notificationHandler = new NotificationHandler(this);
             notificationHandler.handlePosted(sbn);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
@@ -46,7 +47,6 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         try {
-            NotificationHandler notificationHandler = new NotificationHandler(this);
             notificationHandler.handleRemoved(sbn, -1);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
@@ -56,7 +56,6 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn, RankingMap rankingMap, int reason) {
         try {
-            NotificationHandler notificationHandler = new NotificationHandler(this);
             notificationHandler.handleRemoved(sbn, reason);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();

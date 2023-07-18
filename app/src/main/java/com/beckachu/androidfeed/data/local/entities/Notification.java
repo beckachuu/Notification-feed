@@ -1,19 +1,18 @@
-package com.beckachu.androidfeed.service;
+package com.beckachu.androidfeed.data.local.entities;
 
-import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 import androidx.core.app.NotificationCompat;
+import androidx.room.Entity;
 
-import com.beckachu.androidfeed.BuildConfig;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
+import com.beckachu.androidfeed.services.NotificationListener;
 
 import org.json.JSONObject;
 
@@ -21,12 +20,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
-class NotificationObject {
+@Entity
+public class Notification {
 
     private final boolean LOG_TEXT;
 
     private Context context;
-    private Notification n;
+    private android.app.Notification noti;
 
     // General
     private String packageName;
@@ -97,11 +97,11 @@ class NotificationObject {
     private String textSummary;
     private String textLines;
 
-    NotificationObject(Context context, StatusBarNotification sbn, final boolean LOG_TEXT, int reason) {
+    public Notification(Context context, StatusBarNotification sbn, final boolean LOG_TEXT, int reason) {
         this.context = context;
         this.LOG_TEXT = LOG_TEXT;
 
-        n = sbn.getNotification();
+        noti = sbn.getNotification();
         packageName = sbn.getPackageName();
         postTime = sbn.getPostTime();
         systemTime = System.currentTimeMillis();
@@ -113,7 +113,7 @@ class NotificationObject {
         tag = sbn.getTag();
 
         key = sbn.getKey();
-        sortKey = n.getSortKey();
+        sortKey = noti.getSortKey();
 
         removeReason = reason;
 
@@ -128,18 +128,14 @@ class NotificationObject {
 
     private void extract() {
         // General
-        when = n.when;
-        flags = n.flags;
-        defaults = n.defaults;
-        ledARGB = n.ledARGB;
-        ledOff = n.ledOffMS;
-        ledOn = n.ledOnMS;
+        when = noti.when;
+        flags = noti.flags;
+        defaults = noti.defaults;
+        ledARGB = noti.ledARGB;
+        ledOff = noti.ledOffMS;
+        ledOn = noti.ledOnMS;
 
-        if (Build.VERSION.SDK_INT < 24) { // as of 24, this number is not shown anymore
-            number = n.number;
-        } else {
-            number = -1;
-        }
+        number = -1;
 
         // Device
         ringerMode = Util.getRingerMode(context);
@@ -150,30 +146,28 @@ class NotificationObject {
 //        connectionType = Util.getConnectivityType(context);
 
         // 16
-        priority = n.priority;
+        priority = noti.priority;
 
         // 21
-        if (Build.VERSION.SDK_INT >= 21) {
-            visibility = n.visibility;
-            color = n.color;
+        visibility = noti.visibility;
+        color = noti.color;
 
-            listenerHints = NotificationListener.getListenerHints();
-            interruptionFilter = NotificationListener.getInterruptionFilter();
-            NotificationListenerService.Ranking ranking = new NotificationListenerService.Ranking();
-            NotificationListenerService.RankingMap rankingMap = NotificationListener.getRanking();
-            if (rankingMap != null && rankingMap.getRanking(key, ranking)) {
-                matchesInterruptionFilter = ranking.matchesInterruptionFilter();
-            }
+        listenerHints = NotificationListener.getListenerHints();
+        interruptionFilter = NotificationListener.getInterruptionFilter();
+        NotificationListenerService.Ranking ranking = new NotificationListenerService.Ranking();
+        NotificationListenerService.RankingMap rankingMap = NotificationListener.getRanking();
+        if (rankingMap != null && rankingMap.getRanking(key, ranking)) {
+            matchesInterruptionFilter = ranking.matchesInterruptionFilter();
         }
 
         // Compat
-        group = NotificationCompat.getGroup(n);
-        isGroupSummary = NotificationCompat.isGroupSummary(n);
-        category = NotificationCompat.getCategory(n);
-        actionCount = NotificationCompat.getActionCount(n);
-        isLocalOnly = NotificationCompat.getLocalOnly(n);
+        group = NotificationCompat.getGroup(noti);
+        isGroupSummary = NotificationCompat.isGroupSummary(noti);
+        category = NotificationCompat.getCategory(noti);
+        actionCount = NotificationCompat.getActionCount(noti);
+        isLocalOnly = NotificationCompat.getLocalOnly(noti);
 
-        Bundle extras = NotificationCompat.getExtras(n);
+        Bundle extras = NotificationCompat.getExtras(noti);
         if (extras != null) {
             String[] tmp = extras.getStringArray(NotificationCompat.EXTRA_PEOPLE);
             people = tmp != null ? Arrays.asList(tmp) : null;
@@ -183,7 +177,7 @@ class NotificationObject {
         // Text
         if (LOG_TEXT) {
             appName = Util.getAppNameFromPackage(context, packageName, false);
-            tickerText = Util.nullToEmptyString(n.tickerText);
+            tickerText = Util.nullToEmptyString(noti.tickerText);
 
             if (extras != null) {
                 title = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TITLE));
@@ -272,22 +266,18 @@ class NotificationObject {
             json.put("tag", tag);
 
             // 20
-            if (Build.VERSION.SDK_INT >= 20) {
-                json.put("key", key);
-                json.put("sortKey", sortKey);
-            }
+            json.put("key", key);
+            json.put("sortKey", sortKey);
 
             // 21
-            if (Build.VERSION.SDK_INT >= 21) {
-                json.put("visibility", visibility);
-                json.put("color", color);
-                json.put("interruptionFilter", interruptionFilter);
-                json.put("listenerHints", listenerHints);
-                json.put("matchesInterruptionFilter", matchesInterruptionFilter);
-            }
+            json.put("visibility", visibility);
+            json.put("color", color);
+            json.put("interruptionFilter", interruptionFilter);
+            json.put("listenerHints", listenerHints);
+            json.put("matchesInterruptionFilter", matchesInterruptionFilter);
 
             // 26
-            if (Build.VERSION.SDK_INT >= 26 && removeReason != -1) {
+            if (removeReason != -1) {
                 json.put("removeReason", removeReason);
             }
 

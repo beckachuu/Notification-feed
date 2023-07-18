@@ -7,10 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.BatteryManager;
-import android.os.Build;
 import android.os.LocaleList;
 import android.os.PowerManager;
 import android.provider.Settings;
@@ -87,12 +84,7 @@ public class Util {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         if (pm != null) {
             try {
-                if (Build.VERSION.SDK_INT >= 20) {
-                    return pm.isInteractive();
-                } else {
-                    //noinspection deprecation
-                    return pm.isScreenOn();
-                }
+                return pm.isInteractive();
             } catch (Exception e) {
                 if (Const.DEBUG) e.printStackTrace();
             }
@@ -101,13 +93,8 @@ public class Util {
     }
 
     public static String getLocale(Context context) {
-        if (Build.VERSION.SDK_INT >= 24) {
-            LocaleList localeList = context.getResources().getConfiguration().getLocales();
-            return localeList.toString();
-        } else {
-            //noinspection deprecation
-            return context.getResources().getConfiguration().locale.toString();
-        }
+        LocaleList localeList = context.getResources().getConfiguration().getLocales();
+        return localeList.toString();
     }
 
     public static boolean hasPermission(Context context, String permission) {
@@ -125,23 +112,18 @@ public class Util {
     }
 
     public static int getBatteryLevel(Context context) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
-            if (bm != null) {
-                try {
-                    return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-                } catch (Exception e) {
-                    if (Const.DEBUG) e.printStackTrace();
-                }
+        BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
+        if (bm != null) {
+            try {
+                return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+            } catch (Exception e) {
+                if (Const.DEBUG) e.printStackTrace();
             }
         }
         return -1;
     }
 
     public static String getBatteryStatus(Context context) {
-        if (Build.VERSION.SDK_INT < 26) {
-            return "not supported";
-        }
         try {
             BatteryManager bm = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
             if (bm != null) {

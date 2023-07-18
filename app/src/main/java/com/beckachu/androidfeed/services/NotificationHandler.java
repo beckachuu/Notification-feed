@@ -1,4 +1,4 @@
-package com.beckachu.androidfeed.service;
+package com.beckachu.androidfeed.services;
 
 
 import android.content.ContentValues;
@@ -8,11 +8,12 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.service.notification.StatusBarNotification;
 
-import com.beckachu.androidfeed.misc.Const;
-import com.beckachu.androidfeed.misc.DatabaseHelper;
-
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
+
+import com.beckachu.androidfeed.data.local.entities.Notification;
+import com.beckachu.androidfeed.misc.Const;
+import com.beckachu.androidfeed.domain.DatabaseHelper;
 
 public class NotificationHandler {
 
@@ -35,7 +36,7 @@ public class NotificationHandler {
             return;
         }
         boolean text = sharedPref.getBoolean(Const.PREF_TEXT, true);
-        NotificationObject no = new NotificationObject(context, sbn, text, -1);
+        Notification no = new Notification(context, sbn, text, -1);
         log(DatabaseHelper.PostedEntry.TABLE_NAME, DatabaseHelper.PostedEntry.COLUMN_NAME_CONTENT, no.toString());
     }
 
@@ -44,7 +45,7 @@ public class NotificationHandler {
             if (Const.DEBUG) System.out.println("removed ongoing!");
             return;
         }
-        NotificationObject no = new NotificationObject(context, sbn, false, reason);
+        Notification no = new Notification(context, sbn, false, reason);
         log(DatabaseHelper.RemovedEntry.TABLE_NAME, DatabaseHelper.RemovedEntry.COLUMN_NAME_CONTENT, no.toString());
     }
 
