@@ -11,7 +11,10 @@ import android.service.notification.StatusBarNotification;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
-import com.beckachu.androidfeed.data.local.entities.Notification;
+import com.beckachu.androidfeed.BuildConfig;
+import com.beckachu.androidfeed.data.AppDatabase;
+import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.domain.DatabaseHelper;
 
@@ -36,8 +39,9 @@ public class NotificationHandler {
             return;
         }
         boolean text = sharedPref.getBoolean(Const.PREF_TEXT, true);
-        Notification no = new Notification(context, sbn, text, -1);
-        log(DatabaseHelper.PostedEntry.TABLE_NAME, DatabaseHelper.PostedEntry.COLUMN_NAME_CONTENT, no.toString());
+        NotiEntity noti = new NotiEntity(context, sbn, text, -1);
+
+        log(DatabaseHelper.PostedEntry.TABLE_NAME, DatabaseHelper.PostedEntry.COLUMN_NAME_CONTENT, noti.toString());
     }
 
     void handleRemoved(StatusBarNotification sbn, int reason) {
@@ -57,8 +61,10 @@ public class NotificationHandler {
                     ContentValues values = new ContentValues();
                     values.put(columnName, content);
                     db.insert(tableName, "null", values);
-                    db.close();
-                    dbHelper.close();
+                    if (BuildConfig.DEBUG != true) {
+                        db.close();
+                        dbHelper.close();
+                    }
                 }
 
                 Intent local = new Intent();

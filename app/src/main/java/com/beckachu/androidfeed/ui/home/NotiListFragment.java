@@ -4,28 +4,36 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.beckachu.androidfeed.databinding.FragmentHomeBinding;
+import com.beckachu.androidfeed.databinding.FragmentNotiListBinding;
 
-public class HomeFragment extends Fragment {
+public class NotiListFragment extends Fragment {
 
-    private FragmentHomeBinding binding;
+    private RecyclerView recyclerView;
+    private FragmentNotiListBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
 
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        binding = FragmentNotiListBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
 //        final TextView textView = binding.textHome;
 //        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getContext());
+        recyclerView = binding.notiList;
+        recyclerView.setLayoutManager(layoutManager);
+
+        NotiListAdapter adapter = new NotiListAdapter(this.getActivity());
+        recyclerView.setAdapter(adapter);
+
         return root;
     }
 

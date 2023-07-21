@@ -21,6 +21,6 @@
         android:layout_gravity="start|center_vertical"
         android:fitsSystemWindows="true"
         app:menu="@menu/nav_drawer"
-        android:background="@drawable/rounded_nav_view"
+        android:background="@drawable/rounded_corners"
         android:paddingVertical="@dimen/nav_menu_vertical_padding" />
 </androidx.drawerlayout.widget.DrawerLayout>
