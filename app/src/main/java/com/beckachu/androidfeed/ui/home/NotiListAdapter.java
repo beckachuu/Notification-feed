@@ -3,8 +3,6 @@ package com.beckachu.androidfeed.ui.home;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -16,9 +14,9 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.beckachu.androidfeed.BuildConfig;
 import com.beckachu.androidfeed.R;
-import com.beckachu.androidfeed.misc.DatabaseHelper;
+import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.ui.noti_detail.DetailsActivity;
@@ -29,6 +27,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
@@ -45,9 +44,11 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     private String lastDate = "";
     private boolean shouldLoadMore = true;
+    private NotiRepository notiRepository;
 
     NotiListAdapter(Activity context) {
         this.context = context;
+        this.notiRepository = new NotiRepository(context.getApplicationContext());
         loadMore(Integer.MAX_VALUE);
     }
 
@@ -133,40 +134,18 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         if (Const.DEBUG) System.out.println("loading more items");
         int before = getItemCount();
         try {
-            DatabaseHelper databaseHelper = new DatabaseHelper(context);
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            List<NotiEntity> olderNotis = notiRepository.getAllNotisOlderThanId(afterId);
 
-            Cursor cursor = db.query(DatabaseHelper.PostedEntry.TABLE_NAME,
-                    new String[]{
-                            DatabaseHelper.PostedEntry._ID,
-                            DatabaseHelper.PostedEntry.COLUMN_NAME_CONTENT
-                    },
-                    DatabaseHelper.PostedEntry._ID + " < ?",
-                    new String[]{"" + afterId},
-                    null,
-                    null,
-                    DatabaseHelper.PostedEntry._ID + " DESC",
-                    PAGE_SIZE);
+            for (int i = 0; i < olderNotis.size(); i++) {
+                NotiEntity notiEntity = olderNotis.get(i);
+                DataItem dataItem = new DataItem(context, notiEntity.getNid(), notiEntity.toString());
 
-            if (cursor != null && cursor.moveToFirst()) {
-                for (int i = 0; i < cursor.getCount(); i++) {
-                    DataItem dataItem = new DataItem(context, cursor.getLong(0), cursor.getString(1));
-
-                    String thisDate = dataItem.getDate();
-                    if (lastDate.equals(thisDate)) {
-                        dataItem.setShowDate(false);
-                    }
-                    lastDate = thisDate;
-
-                    data.add(dataItem);
-                    cursor.moveToNext();
+                String thisDate = dataItem.getDate();
+                if (lastDate.equals(thisDate)) {
+                    dataItem.setShowDate(false);
                 }
-                cursor.close();
-            }
-
-            if (BuildConfig.DEBUG != true) {
-                db.close();
-                databaseHelper.close();
+                lastDate = thisDate;
+                data.add(dataItem);
             }
 
         } catch (Exception e) {

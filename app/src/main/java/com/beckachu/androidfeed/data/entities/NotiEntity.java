@@ -12,6 +12,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.beckachu.androidfeed.BuildConfig;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.services.NotificationListener;
@@ -27,7 +28,6 @@ import java.util.TimeZone;
  */
 @Entity
 public class NotiEntity {
-    @Ignore
     public final boolean LOG_TEXT;
 
     @Ignore
@@ -242,10 +242,6 @@ public class NotiEntity {
         return nid;
     }
 
-    public void setNid(int nid) {
-        this.nid = nid;
-    }
-
     public String getTag() {
         return tag;
     }
@@ -310,13 +306,6 @@ public class NotiEntity {
         this.matchesInterruptionFilter = matchesInterruptionFilter;
     }
 
-    public int getRemoveReason() {
-        return removeReason;
-    }
-
-    public void setRemoveReason(int removeReason) {
-        this.removeReason = removeReason;
-    }
 
     public String getAppName() {
         return appName;
@@ -437,7 +426,7 @@ public class NotiEntity {
     public int priority;
 
     // 18
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public int nid;
     public String tag;
 
@@ -452,8 +441,6 @@ public class NotiEntity {
     public int listenerHints;
     public boolean matchesInterruptionFilter;
 
-    // 26
-    public int removeReason;
 
     // Text
     public String appName;
@@ -468,10 +455,10 @@ public class NotiEntity {
     public String textLines;
 
     public NotiEntity() {
-        this.LOG_TEXT = true;
+        this.LOG_TEXT = false;
     }
 
-    public NotiEntity(Context context, StatusBarNotification sbn, final boolean LOG_TEXT, int reason) {
+    public NotiEntity(Context context, StatusBarNotification sbn, final boolean LOG_TEXT) {
         this.context = context;
         this.LOG_TEXT = LOG_TEXT;
 
@@ -483,13 +470,11 @@ public class NotiEntity {
         isClearable = sbn.isClearable();
         isOngoing = sbn.isOngoing();
 
-        nid = sbn.getId();
+//        nid = sbn.getId();
         tag = sbn.getTag();
 
         key = sbn.getKey();
         sortKey = noti.getSortKey();
-
-        removeReason = reason;
 
         extract();
 
@@ -584,7 +569,7 @@ public class NotiEntity {
             json.put("postTime", postTime);
             json.put("systemTime", systemTime);
             json.put("offset", TimeZone.getDefault().getOffset(systemTime));
-//            json.put("version", BuildConfig.VERSION_CODE);
+            json.put("version", BuildConfig.VERSION_CODE);
             json.put("sdk", android.os.Build.VERSION.SDK_INT);
 
             json.put("isOngoing", isOngoing);
@@ -650,20 +635,16 @@ public class NotiEntity {
             json.put("listenerHints", listenerHints);
             json.put("matchesInterruptionFilter", matchesInterruptionFilter);
 
-            // 26
-            if (removeReason != -1) {
-                json.put("removeReason", removeReason);
-            }
 
             // Activity
-            if (Const.ENABLE_ACTIVITY_RECOGNITION && lastActivity != null) {
-                json.put("lastActivity", new JSONObject(lastActivity));
-            }
+//            if (Const.ENABLE_ACTIVITY_RECOGNITION && lastActivity != null) {
+//                json.put("lastActivity", new JSONObject(lastActivity));
+//            }
 
             // Location
-            if (Const.ENABLE_LOCATION_SERVICE && lastLocation != null) {
-                json.put("lastLocation", new JSONObject(lastLocation));
-            }
+//            if (Const.ENABLE_LOCATION_SERVICE && lastLocation != null) {
+//                json.put("lastLocation", new JSONObject(lastLocation));
+//            }
 
             return json.toString();
         } catch (Exception e) {

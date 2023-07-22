@@ -57,7 +57,7 @@
     <string name="empty_log_file">No notifications logged yet!</string>
     <string name="open_notification_settings">Notification Settings</string>
 
-    <!-- Delete Notification -->
+    <!-- Delete NotiEntity -->
     <string name="delete_dialog_title">Delete notification</string>
     <string name="delete_dialog_text">Do you really want to delete this notification? This cannot be undone.</string>
     <string name="delete_dialog_yes">Delete</string>

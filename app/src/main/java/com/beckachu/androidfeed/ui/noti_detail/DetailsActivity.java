@@ -5,12 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,13 +17,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
-import com.beckachu.androidfeed.BuildConfig;
 import com.beckachu.androidfeed.R;
+import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
-import com.beckachu.androidfeed.misc.DatabaseHelper;
 import com.beckachu.androidfeed.misc.Util;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
@@ -41,6 +35,7 @@ public class DetailsActivity extends AppCompatActivity {
     public static final String ACTION_REFRESH = "refresh";
 
     private static final boolean SHOW_RELATIVE_DATE_TIME = true;
+    private NotiRepository notiRepository;
 
     private String id;
     private String packageName;
@@ -63,6 +58,8 @@ public class DetailsActivity extends AppCompatActivity {
         } else {
             finishWithToast();
         }
+
+        this.notiRepository = new NotiRepository(getApplicationContext());
     }
 
     @Override
@@ -78,38 +75,12 @@ public class DetailsActivity extends AppCompatActivity {
         JSONObject json = null;
         String str = "error";
         try {
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            NotiEntity notiEntity = notiRepository.getNotiById(id);
 
-            Cursor cursor = db.query(DatabaseHelper.PostedEntry.TABLE_NAME,
-                    new String[]{
-                            DatabaseHelper.PostedEntry.COLUMN_NAME_CONTENT,
-                    },
-                    DatabaseHelper.PostedEntry._ID + " = ?",
-                    new String[]{
-                            id
-                    },
-                    null,
-                    null,
-                    null,
-                    "1");
-
-            if (cursor != null && cursor.getCount() == 1 && cursor.moveToFirst()) {
-                try {
-                    json = new JSONObject(cursor.getString(0));
-                    str = json.toString(2);
-                } catch (JSONException e) {
-                    if (Const.DEBUG) e.printStackTrace();
-                }
-                cursor.close();
+            if (notiEntity != null) {
+                str = notiEntity.toString();
+                json = new JSONObject(str);
             }
-
-            if (BuildConfig.DEBUG != true) {
-                db.close();
-                databaseHelper.close();
-            }
-
-
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
         }
@@ -183,16 +154,7 @@ public class DetailsActivity extends AppCompatActivity {
     private DialogInterface.OnClickListener doDelete = (dialog, which) -> {
         int affectedRows = 0;
         try {
-            DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            SQLiteDatabase db = databaseHelper.getWritableDatabase();
-            affectedRows = db.delete(DatabaseHelper.PostedEntry.TABLE_NAME,
-                    DatabaseHelper.PostedEntry._ID + " = ?",
-                    new String[]{id});
-            if (BuildConfig.DEBUG != true) {
-                db.close();
-                databaseHelper.close();
-            }
-
+            affectedRows = notiRepository.deleteNoti(id);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
         }
@@ -208,18 +170,8 @@ public class DetailsActivity extends AppCompatActivity {
     public void openNotificationSettings(View v) {
         try {
             Intent intent = new Intent();
-            if (Build.VERSION.SDK_INT > 25) {
-                intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
-            } else if (Build.VERSION.SDK_INT >= 21) {
-                intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
-                intent.putExtra("app_package", packageName);
-                intent.putExtra("app_uid", appUid);
-            } else {
-                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.addCategory(Intent.CATEGORY_DEFAULT);
-                intent.setData(Uri.parse("package:" + packageName));
-            }
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.putExtra("android.provider.extra.APP_PACKAGE", packageName);
             startActivity(intent);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();

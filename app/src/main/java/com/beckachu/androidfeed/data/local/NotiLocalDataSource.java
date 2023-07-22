@@ -6,6 +6,9 @@ import java.util.List;
 
 /**
  * This interface defines methods to be implement by DAO
+ * <p>
+ * Common naming conventions for DataSource methods:
+ * query, insert, update, and delete
  */
 public interface NotiLocalDataSource {
 
@@ -13,15 +16,6 @@ public interface NotiLocalDataSource {
 
     void addNotification(NotiEntity notification);
 
-    void removeNotification(NotiEntity notification);
+    void deleteNotification(NotiEntity notification);
 
-    List<NotiEntity> getAll();
-
-    List<NotiEntity> loadAllByIds(int[] userIds);
-
-    NotiEntity getByApp(String first);
-
-    void insertAll(NotiEntity... users);
-
-    void delete(NotiEntity user);
 }

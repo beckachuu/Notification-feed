@@ -16,16 +16,16 @@ Project for the Mobile Development course, hopefully will be finished by the end
 
 - Finished:
     - Listen to notifications
+    - Save notifications to database
 
 - Todo:
-    - Save notifications to database
     - Filter notifications by date
     - Save your favorite ones
     - Delete the less favorite ones
     - Notify if new notifications come from your favorite apps
     - Choose which apps to record from
     - Export logs
-    - Import data from log
+    - Import data from logs
 
 - _Extra: Separate screens and services for Messenger_
 
