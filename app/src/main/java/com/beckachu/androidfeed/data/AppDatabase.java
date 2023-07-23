@@ -13,6 +13,7 @@ import com.beckachu.androidfeed.data.local.dao.NotiDao;
         entities = {
                 NotiEntity.class,
         },
+        exportSchema = false,
         version = 1
 )
 public abstract class AppDatabase extends RoomDatabase {

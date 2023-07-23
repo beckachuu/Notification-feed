@@ -1,7 +1,6 @@
 package com.beckachu.androidfeed.ui.home;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -16,13 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.beckachu.androidfeed.R;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
-import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.ui.noti_detail.DetailsActivity;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -38,7 +34,7 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
     private DateFormat format = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
 
     private Activity context;
-    private ArrayList<DataItem> data = new ArrayList<>();
+    private ArrayList<NotiModel> data = new ArrayList<>();
     private HashMap<String, Drawable> iconCache = new HashMap<>();
     private Handler handler = new Handler();
 
@@ -87,7 +83,7 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull NotiListViewHolder vh, int position) {
-        DataItem item = data.get(position);
+        NotiModel item = data.get(position);
 
         if (iconCache.containsKey(item.getPackageName()) && iconCache.get(item.getPackageName()) != null) {
             vh.icon.setImageDrawable(iconCache.get(item.getPackageName()));
@@ -138,14 +134,14 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
             for (int i = 0; i < olderNotis.size(); i++) {
                 NotiEntity notiEntity = olderNotis.get(i);
-                DataItem dataItem = new DataItem(context, notiEntity.getNid(), notiEntity.toString());
+                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(), format);
 
-                String thisDate = dataItem.getDate();
+                String thisDate = notiModel.getDate();
                 if (lastDate.equals(thisDate)) {
-                    dataItem.setShowDate(false);
+                    notiModel.setShowDate(false);
                 }
                 lastDate = thisDate;
-                data.add(dataItem);
+                data.add(notiModel);
             }
 
         } catch (Exception e) {
@@ -165,73 +161,6 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         }
 
         handler.post(() -> notifyDataSetChanged());
-    }
-
-    private class DataItem {
-
-        private long id;
-        private String packageName;
-        private String appName;
-        private String text;
-        private String preview;
-        private String date;
-        private boolean showDate;
-
-        DataItem(Context context, long id, String str) {
-            this.id = id;
-            try {
-                JSONObject json = new JSONObject(str);
-                packageName = json.getString("packageName");
-                appName = Util.getAppNameFromPackage(context, packageName, false);
-                text = str;
-
-                String title = json.optString("title");
-                String text = json.optString("text");
-                preview = (title + "\n" + text).trim();
-
-                if (!iconCache.containsKey(packageName)) {
-                    iconCache.put(packageName, Util.getAppIconFromPackage(context, packageName));
-                }
-
-                date = format.format(json.optLong("systemTime"));
-                showDate = true;
-            } catch (JSONException e) {
-                if (Const.DEBUG) e.printStackTrace();
-            }
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public String getPackageName() {
-            return packageName;
-        }
-
-        public String getAppName() {
-            return appName;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public String getPreview() {
-            return preview;
-        }
-
-        public String getDate() {
-            return date;
-        }
-
-        public boolean shouldShowDate() {
-            return showDate;
-        }
-
-        public void setShowDate(boolean showDate) {
-            this.showDate = showDate;
-        }
-
     }
 
 }

@@ -27,19 +27,24 @@ public class NotificationHandler {
             if (Const.DEBUG) System.out.println("posted ongoing!");
             return;
         }
-        boolean text = sharedPref.getBoolean(Const.PREF_TEXT, true);
-        NotiEntity notiEntity = new NotiEntity(context, sbn, text);
+        boolean logText = sharedPref.getBoolean(Const.PREF_TEXT, true);
+        NotiEntity notiEntity = new NotiEntity(context, sbn, logText);
 
         notiRepository.addNoti(context, notiEntity);
-        if (Const.DEBUG) System.out.println("added noti with ID = " + notiEntity.getNid());
+        if (Const.DEBUG) System.out.println("added noti: " + notiEntity.getText());
     }
 
-    void handleRemoved(StatusBarNotification sbn, int reason) {
+    /**
+     * TODO: implement when needed
+     *
+     * @param sbn StatusBarNotification object
+     */
+    void handleRemoved(StatusBarNotification sbn) {
 //        if (sbn.isOngoing() && !sharedPref.getBoolean(Const.PREF_ONGOING, false)) {
 //            if (Const.DEBUG) System.out.println("removed ongoing!");
 //            return;
 //        }
-//        NotiEntity no = new NotiEntity(context, sbn, false, reason);
+//        NotiEntity no = new NotiEntity(context, sbn, false);
 //        log(DatabaseHelper.RemovedEntry.TABLE_NAME, DatabaseHelper.RemovedEntry.COLUMN_NAME_CONTENT, no.toString());
     }
 

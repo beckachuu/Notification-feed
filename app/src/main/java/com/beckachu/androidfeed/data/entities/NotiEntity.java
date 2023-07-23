@@ -28,6 +28,7 @@ import java.util.TimeZone;
  */
 @Entity
 public class NotiEntity {
+    @Ignore
     public final boolean LOG_TEXT;
 
     @Ignore

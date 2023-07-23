@@ -47,16 +47,16 @@ public class NotificationListener extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         try {
-            notificationHandler.handleRemoved(sbn, -1);
+            notificationHandler.handleRemoved(sbn);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
         }
     }
 
     @Override
-    public void onNotificationRemoved(StatusBarNotification sbn, RankingMap rankingMap, int reason) {
+    public void onNotificationRemoved(StatusBarNotification sbn, RankingMap rankingMap) {
         try {
-            notificationHandler.handleRemoved(sbn, reason);
+            notificationHandler.handleRemoved(sbn);
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
         }

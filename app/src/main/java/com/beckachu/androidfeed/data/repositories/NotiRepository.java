@@ -11,9 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.beckachu.androidfeed.data.AppDatabase;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.local.dao.NotiDao;
-import com.beckachu.androidfeed.data.models.Noti;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -44,20 +42,6 @@ public class NotiRepository {
       - delete (remove): Deletes an existing record from the data source.
       - find: Retrieves records that meet certain criteria.
      */
-
-    /**
-     * Get list of all notifications
-     *
-     * @return data model that stores data for the UI layer
-     */
-    public List<Noti> getAllNotis() {
-        List<NotiEntity> notiEntities = notiDao.getAll();
-        List<Noti> notiUiModels = new ArrayList<>();
-        for (NotiEntity notiEntity : notiEntities) {
-            notiUiModels.add(new Noti(notiEntity));
-        }
-        return notiUiModels;
-    }
 
     public List<NotiEntity> getAllNotisByIdAsc() {
         Future<List<NotiEntity>> future = executor.submit(() -> {

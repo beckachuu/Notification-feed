@@ -18,9 +18,6 @@ import java.util.List;
 @Dao
 public interface NotiDao {
 
-    @Query("SELECT * FROM notientity")
-    List<NotiEntity> getAll();
-
     @Query("SELECT * FROM notientity ORDER BY nid ASC")
     List<NotiEntity> getAllByIdAsc();
 
