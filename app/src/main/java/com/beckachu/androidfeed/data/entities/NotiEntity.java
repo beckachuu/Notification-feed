@@ -29,9 +29,6 @@ import java.util.TimeZone;
 @Entity
 public class NotiEntity {
     @Ignore
-    public final boolean LOG_TEXT;
-
-    @Ignore
     public Context context;
     @Ignore
     public android.app.Notification noti;
@@ -456,12 +453,10 @@ public class NotiEntity {
     public String textLines;
 
     public NotiEntity() {
-        this.LOG_TEXT = false;
     }
 
-    public NotiEntity(Context context, StatusBarNotification sbn, final boolean LOG_TEXT) {
+    public NotiEntity(Context context, StatusBarNotification sbn) {
         this.context = context;
-        this.LOG_TEXT = LOG_TEXT;
 
         noti = sbn.getNotification();
         packageName = sbn.getPackageName();
@@ -528,34 +523,31 @@ public class NotiEntity {
         isLocalOnly = NotificationCompat.getLocalOnly(noti);
 
         Bundle extras = NotificationCompat.getExtras(noti);
+
+        appName = Util.getAppNameFromPackage(context, packageName, false);
+        tickerText = Util.nullToEmptyString(noti.tickerText);
+
         if (extras != null) {
             String[] tmp = extras.getStringArray(NotificationCompat.EXTRA_PEOPLE);
             people = tmp != null ? Arrays.asList(tmp) : null;
             style = extras.getString(NotificationCompat.EXTRA_TEMPLATE);
-        }
 
-        // Text
-        if (LOG_TEXT) {
-            appName = Util.getAppNameFromPackage(context, packageName, false);
-            tickerText = Util.nullToEmptyString(noti.tickerText);
+            // Text
+            title = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TITLE));
+            titleBig = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TITLE_BIG));
+            text = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
+            textBig = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_BIG_TEXT));
+            textInfo = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_INFO_TEXT));
+            textSub = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_SUB_TEXT));
+            textSummary = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_SUMMARY_TEXT));
 
-            if (extras != null) {
-                title = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TITLE));
-                titleBig = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TITLE_BIG));
-                text = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
-                textBig = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_BIG_TEXT));
-                textInfo = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_INFO_TEXT));
-                textSub = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_SUB_TEXT));
-                textSummary = Util.nullToEmptyString(extras.getCharSequence(NotificationCompat.EXTRA_SUMMARY_TEXT));
-
-                CharSequence[] lines = extras.getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES);
-                if (lines != null) {
-                    textLines = "";
-                    for (CharSequence line : lines) {
-                        textLines += line + "\n";
-                    }
-                    textLines = textLines.trim();
+            CharSequence[] lines = extras.getCharSequenceArray(NotificationCompat.EXTRA_TEXT_LINES);
+            if (lines != null) {
+                textLines = "";
+                for (CharSequence line : lines) {
+                    textLines += line + "\n";
                 }
+                textLines = textLines.trim();
             }
         }
     }
@@ -604,17 +596,15 @@ public class NotiEntity {
             //json.put("displayName",    displayName);
 
             // Text
-            if (LOG_TEXT) {
-                json.put("tickerText", tickerText);
-                json.put("title", title);
-                json.put("titleBig", titleBig);
-                json.put("text", text);
-                json.put("textBig", textBig);
-                json.put("textInfo", textInfo);
-                json.put("textSub", textSub);
-                json.put("textSummary", textSummary);
-                json.put("textLines", textLines);
-            }
+            json.put("tickerText", tickerText);
+            json.put("title", title);
+            json.put("titleBig", titleBig);
+            json.put("text", text);
+            json.put("textBig", textBig);
+            json.put("textInfo", textInfo);
+            json.put("textSub", textSub);
+            json.put("textSummary", textSummary);
+            json.put("textLines", textLines);
 
             json.put("appName", appName);
 

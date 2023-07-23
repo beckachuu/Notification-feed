@@ -28,7 +28,7 @@ public class NotificationHandler {
             return;
         }
         boolean logText = sharedPref.getBoolean(Const.PREF_TEXT, true);
-        NotiEntity notiEntity = new NotiEntity(context, sbn, logText);
+        NotiEntity notiEntity = new NotiEntity(context, sbn);
 
         notiRepository.addNoti(context, notiEntity);
         if (Const.DEBUG) System.out.println("added noti: " + notiEntity.getText());

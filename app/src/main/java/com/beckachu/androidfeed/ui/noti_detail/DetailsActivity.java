@@ -98,7 +98,7 @@ public class DetailsActivity extends AppCompatActivity {
                 card.setVisibility(View.VISIBLE);
                 ImageView icon = findViewById(R.id.icon);
                 icon.setImageDrawable(Util.getAppIconFromPackage(this, packageName));
-                TextView tvName = findViewById(R.id.name);
+                TextView tvName = findViewById(R.id.noti_title);
                 tvName.setText(Util.getAppNameFromPackage(this, packageName, false));
                 TextView tvText = findViewById(R.id.text);
                 tvText.setText(text);

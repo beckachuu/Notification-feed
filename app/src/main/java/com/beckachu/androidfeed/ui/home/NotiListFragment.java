@@ -31,7 +31,7 @@ public class NotiListFragment extends Fragment {
         recyclerView = binding.notiList;
         recyclerView.setLayoutManager(layoutManager);
 
-        NotiListAdapter adapter = new NotiListAdapter(this.getActivity());
+        NotiListAdapter adapter = new NotiListAdapter(this.requireActivity());
         recyclerView.setAdapter(adapter);
 
         return root;

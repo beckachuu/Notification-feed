@@ -21,6 +21,7 @@ public class NotiModel {
     private long id;
     private String packageName;
     private String appName;
+    private String title;
     private String text;
     private String preview;
     private String date;
@@ -30,20 +31,19 @@ public class NotiModel {
         this.id = id;
         try {
             JSONObject json = new JSONObject(str);
-            packageName = json.getString("packageName");
-            appName = Util.getAppNameFromPackage(context, packageName, false);
-            text = str;
+            this.packageName = json.getString("packageName");
+            this.appName = Util.getAppNameFromPackage(context, this.packageName, false);
 
-            String title = json.optString("title");
-            String text = json.optString("text");
-            preview = (title + "\n" + text).trim();
+            this.title = json.optString("title");
+            this.text = json.optString("text");
+            this.preview = (this.title + "\n" + this.text).trim();
 
-            if (!iconCache.containsKey(packageName)) {
-                iconCache.put(packageName, Util.getAppIconFromPackage(context, packageName));
+            if (!iconCache.containsKey(this.packageName)) {
+                iconCache.put(this.packageName, Util.getAppIconFromPackage(context, this.packageName));
             }
 
-            date = format.format(json.optLong("systemTime"));
-            showDate = true;
+            this.date = format.format(json.optLong("systemTime"));
+            this.showDate = true;
         } catch (JSONException e) {
             if (Const.DEBUG) e.printStackTrace();
         }
@@ -59,6 +59,10 @@ public class NotiModel {
 
     public String getAppName() {
         return appName;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public String getText() {

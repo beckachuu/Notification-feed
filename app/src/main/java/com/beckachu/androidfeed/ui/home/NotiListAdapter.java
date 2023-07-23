@@ -82,37 +82,38 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NotiListViewHolder vh, int position) {
-        NotiModel item = data.get(position);
+    public void onBindViewHolder(@NonNull NotiListViewHolder viewHolder, int position) {
+        NotiModel notiModel = data.get(position);
 
-        if (iconCache.containsKey(item.getPackageName()) && iconCache.get(item.getPackageName()) != null) {
-            vh.icon.setImageDrawable(iconCache.get(item.getPackageName()));
+        if (iconCache.containsKey(notiModel.getPackageName()) && iconCache.get(notiModel.getPackageName()) != null) {
+            viewHolder.icon.setImageDrawable(iconCache.get(notiModel.getPackageName()));
         } else {
-            vh.icon.setImageResource(R.mipmap.ic_launcher);
+            viewHolder.icon.setImageResource(R.mipmap.ic_launcher);
         }
 
-        vh.item.setTag("" + item.getId());
-        vh.name.setText(item.getAppName());
+        viewHolder.item.setTag("" + notiModel.getId());
+        viewHolder.title.setText(notiModel.getTitle());
 
-        if (item.getPreview().length() == 0) {
-            vh.preview.setVisibility(View.GONE);
-            vh.text.setVisibility(View.VISIBLE);
-            vh.text.setText(item.getText());
-        } else {
-            vh.text.setVisibility(View.GONE);
-            vh.preview.setVisibility(View.VISIBLE);
-            vh.preview.setText(item.getPreview());
-        }
+        viewHolder.preview.setVisibility(View.GONE);
+        viewHolder.text.setVisibility(View.VISIBLE);
+        viewHolder.text.setText(notiModel.getText());
 
-        if (item.shouldShowDate()) {
-            vh.date.setVisibility(View.VISIBLE);
-            vh.date.setText(item.getDate());
+//        if (notiModel.getPreview().length() == 0) {
+//        } else {
+//            viewHolder.text.setVisibility(View.GONE);
+//            viewHolder.preview.setVisibility(View.VISIBLE);
+//            viewHolder.preview.setText(notiModel.getPreview());
+//        }
+
+        if (notiModel.shouldShowDate()) {
+            viewHolder.date.setVisibility(View.VISIBLE);
+            viewHolder.date.setText(notiModel.getDate());
         } else {
-            vh.date.setVisibility(View.GONE);
+            viewHolder.date.setVisibility(View.GONE);
         }
 
         if (position == getItemCount() - 1) {
-            loadMore(item.getId());
+            loadMore(notiModel.getId());
         }
     }
 
