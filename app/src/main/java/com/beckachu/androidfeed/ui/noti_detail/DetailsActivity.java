@@ -47,6 +47,8 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
+        this.notiRepository = new NotiRepository(getApplicationContext());
+
         Intent intent = getIntent();
         if (intent != null) {
             id = intent.getStringExtra(EXTRA_ID);
@@ -59,7 +61,11 @@ public class DetailsActivity extends AppCompatActivity {
             finishWithToast();
         }
 
-        this.notiRepository = new NotiRepository(getApplicationContext());
+//        NavController navController = Navigation.findNavController(this, R.id.noti_list);
+//
+//        // Simplified toolbar setup
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        NavigationUI.setupWithNavController(toolbar, navController);
     }
 
     @Override

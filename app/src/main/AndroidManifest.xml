@@ -39,14 +39,9 @@
         <!--                android:value=".ui.MainActivity" />-->
         <!--        </activity>-->
 
-        <!--        <activity-->
-        <!--            android:name=".ui.DetailsActivity"-->
-        <!--            android:label="@string/activity_details"-->
-        <!--            android:parentActivityName=".ui.BrowseActivity">-->
-        <!--            <meta-data-->
-        <!--                android:name="android.support.PARENT_ACTIVITY"-->
-        <!--                android:value=".ui.BrowseActivity" />-->
-        <!--        </activity>-->
+        <activity
+            android:name=".ui.noti_detail.DetailsActivity"
+            android:label="@string/activity_details" />
 
 
         <!-- Services -->
