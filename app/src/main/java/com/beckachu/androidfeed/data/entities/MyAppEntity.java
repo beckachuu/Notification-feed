@@ -3,6 +3,7 @@ package com.beckachu.androidfeed.data.entities;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -13,6 +14,7 @@ import com.beckachu.androidfeed.misc.Util;
 @Entity
 public class MyAppEntity {
     @PrimaryKey
+    @NonNull
     private String packageName;
     private String appName;
 
@@ -24,6 +26,7 @@ public class MyAppEntity {
 
 
     public MyAppEntity() {
+        this.packageName = "";
         this.isFavorite = false;
         this.isReceivingNoti = true;
     }
@@ -67,5 +70,13 @@ public class MyAppEntity {
 
     public void setReceivingNoti(boolean receivingNoti) {
         isReceivingNoti = receivingNoti;
+    }
+
+    public Drawable getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
     }
 }

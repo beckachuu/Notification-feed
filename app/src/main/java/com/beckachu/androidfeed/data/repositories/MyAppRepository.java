@@ -21,6 +21,17 @@ public class MyAppRepository {
         myAppDao = db.myAppDao();
     }
 
+
+    public int countAllApps() {
+        Future<Integer> future = executor.submit(myAppDao::countAll);
+
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            return 0;
+        }
+    }
+
     public List<MyAppEntity> getAllAppByNameAsc() {
         Future<List<MyAppEntity>> future = executor.submit(myAppDao::getAllByNameAsc);
 
@@ -39,7 +50,10 @@ public class MyAppRepository {
 
     public boolean updateAppFavorite(String packageName, boolean pref) {
         Future<Boolean> future = executor.submit(() -> {
-            return myAppDao.setFavorite(packageName, pref);
+            if (myAppDao.setFavorite(packageName, pref) == 0) {
+                return false;
+            }
+            return true;
         });
 
         try {
@@ -51,7 +65,10 @@ public class MyAppRepository {
 
     public boolean updateReceiveNotiPref(String packageName, boolean pref) {
         Future<Boolean> future = executor.submit(() -> {
-            return myAppDao.setReceiveNoti(packageName, pref);
+            if (myAppDao.setReceiveNoti(packageName, pref) == 0) {
+                return false;
+            }
+            return true;
         });
 
         try {
