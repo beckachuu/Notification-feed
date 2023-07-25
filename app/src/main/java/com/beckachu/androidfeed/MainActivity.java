@@ -4,11 +4,13 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
@@ -16,25 +18,37 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.beckachu.androidfeed.data.entities.MyAppEntity;
+import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.repositories.MyAppRepository;
+import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
+import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.services.NotificationListener;
+import com.beckachu.androidfeed.ui.noti_detail.DetailsActivity;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
+    private NotiRepository notiRepository;
+    private MyAppRepository myAppRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        notiRepository = new NotiRepository(this);
+        myAppRepository = new MyAppRepository(this);
+
         /*
-         * Show "Notification access" setting screen (in case the app didn't have this permission
+         * Show "NotiEntity access" setting screen (in case the app didn't have this permission)
          */
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         ComponentName componentName = new ComponentName(this, NotificationListener.class);
@@ -44,23 +58,29 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
-
         startService(new Intent(this, NotificationListener.class));
+
+        /*
+         * Show "Autostart" setting screen (in case the app didn't have this permission)
+         */
+//        String manufacturer = "xiaomi";
+//        if (manufacturer.equalsIgnoreCase(android.os.Build.MANUFACTURER)) {
+//            // open auto start screen where user can enable permission for your app
+//            Intent intent = new Intent();
+//            intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+//            startActivity(intent);
+//        }
 
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);
-//        binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
+        navigationView.setItemIconTintList(null);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home)
@@ -71,28 +91,41 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+
         // MENU
         Menu menu = navigationView.getMenu();
         populateNavDrawer(menu);
     }
 
     private void populateNavDrawer(Menu menu) {
-        List<String> listTitle = new ArrayList<>();
-        listTitle.add("one");
-        listTitle.add("two");
-        listTitle.add("three");
+        List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
 
-        // String itemTitle = "new_item";
-        for (String itemTitle : listTitle) {
-            int itemIconID = R.drawable.ic_menu_gallery;
-
-            // Generate a new unique ID based on a string
-            int newId = generateIdFromString(itemTitle);
-
-            // Add a new item to the menu using the generated ID
-            MenuItem newItem = menu.add(Menu.NONE, newId, Menu.NONE, itemTitle);
-            newItem.setIcon(itemIconID);
+        if (appList.size() >= 0) {
+            Set<String> packageNames = new HashSet<>();
+            List<NotiEntity> notiEntityList = notiRepository.getAllNotisByIdAsc();
+            if (notiEntityList != null) {
+                for (NotiEntity notiEntity : notiEntityList) {
+                    String packageName = notiEntity.getPackageName();
+                    if (packageNames.add(packageName)) {
+                        myAppRepository.addApp(new MyAppEntity(this, packageName));
+                    }
+                }
+            }
         }
+
+        appList = myAppRepository.getAllAppByNameAsc();
+        if (appList.size() > 0) {
+            for (MyAppEntity myApp : appList) {
+                String appName = myApp.getAppName();
+                String packageName = myApp.getPackageName();
+                Drawable appIcon = Util.getAppIconFromPackage(this, packageName);
+
+                int newId = generateIdFromString(packageName);
+                MenuItem newItem = menu.add(Menu.NONE, newId, Menu.NONE, appName);
+                newItem.setIcon(appIcon);
+            }
+        }
+
     }
 
 
@@ -109,8 +142,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.noti_list_fragment);
+        NavController navController = Navigation.findNavController(this, R.id.noti_list);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        NavController navController = Navigation.findNavController(this, R.id.noti_list_fragment);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
+
+//        int id = item.getItemId();
+//        Intent intent = new Intent(this, DetailsActivity.class);
+//        intent.putExtra(DetailsActivity.EXTRA_ID, id);
+//        startActivity(intent);
+//
+//        return super.onOptionsItemSelected(item);
+    }
+
 }
