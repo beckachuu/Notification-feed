@@ -5,6 +5,7 @@ import android.content.Context;
 import com.beckachu.androidfeed.data.AppDatabase;
 import com.beckachu.androidfeed.data.entities.MyAppEntity;
 import com.beckachu.androidfeed.data.local.dao.MyAppDao;
+import com.beckachu.androidfeed.misc.Const;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,42 +39,51 @@ public class MyAppRepository {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
+            if (Const.DEBUG) {
+                e.printStackTrace();
+            }
             return null;
         }
     }
 
     public void addApp(MyAppEntity myAppEntity) {
         executor.execute(() -> {
-            myAppDao.insertApp(myAppEntity);
+            synchronized (Const.LOCK_OBJECT) {
+                myAppDao.insertApp(myAppEntity);
+            }
         });
     }
 
+
     public boolean updateAppFavorite(String packageName, boolean pref) {
         Future<Boolean> future = executor.submit(() -> {
-            if (myAppDao.setFavorite(packageName, pref) == 0) {
-                return false;
+            synchronized (Const.LOCK_OBJECT) {
+                return myAppDao.setFavorite(packageName, pref) != 0;
             }
-            return true;
         });
 
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
+            if (Const.DEBUG) {
+                e.printStackTrace();
+            }
             return false;
         }
     }
 
+
     public boolean updateReceiveNotiPref(String packageName, boolean pref) {
         Future<Boolean> future = executor.submit(() -> {
-            if (myAppDao.setReceiveNoti(packageName, pref) == 0) {
-                return false;
+            synchronized (Const.LOCK_OBJECT) {
+                return myAppDao.setReceiveNoti(packageName, pref) != 0;
             }
-            return true;
         });
 
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
+            if (Const.DEBUG) e.printStackTrace();
             return false;
         }
     }

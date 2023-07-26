@@ -11,6 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.beckachu.androidfeed.data.AppDatabase;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.local.dao.NotiDao;
+import com.beckachu.androidfeed.misc.Const;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -44,9 +45,7 @@ public class NotiRepository {
      */
 
     public List<NotiEntity> getAllNotisByIdAsc() {
-        Future<List<NotiEntity>> future = executor.submit(() -> {
-            return notiDao.getAllByIdAsc();
-        });
+        Future<List<NotiEntity>> future = executor.submit(notiDao::getAllByIdAsc);
 
         try {
             return future.get();
@@ -56,22 +55,19 @@ public class NotiRepository {
     }
 
     public List<NotiEntity> getAllNotisOlderThanId(long id) {
-        Future<List<NotiEntity>> future = executor.submit(() -> {
-            return notiDao.getAllOlderThanId(id);
-        });
+        Future<List<NotiEntity>> future = executor.submit(() -> notiDao.getAllOlderThanId(id));
 
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
+            if (Const.DEBUG) e.printStackTrace();
             return null;
         }
     }
 
     public NotiEntity getNotiById(String id) {
         int intId = Integer.parseInt(id);
-        Future<NotiEntity> future = executor.submit(() -> {
-            return notiDao.getById(intId);
-        });
+        Future<NotiEntity> future = executor.submit(() -> notiDao.getById(intId));
 
         try {
             return future.get();
@@ -82,19 +78,25 @@ public class NotiRepository {
 
     public void addNoti(Context context, NotiEntity notiEntity) {
         executor.execute(() -> {
-            notiDao.insert(notiEntity);
-            new Handler(Looper.getMainLooper()).post(() -> {
-                Intent local = new Intent();
-                local.setAction(BROADCAST);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(local);
-            });
+            synchronized (Const.LOCK_OBJECT) {
+                if (!notiEntity.getText().equals("") && !notiEntity.getTitle().equals("")) {
+                    notiDao.insert(notiEntity);
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        Intent local = new Intent();
+                        local.setAction(BROADCAST);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(local);
+                    });
+                }
+            }
         });
     }
 
     public int deleteNoti(String id) {
         Future<Integer> future = executor.submit(() -> {
-            int intId = Integer.parseInt(id);
-            return notiDao.delete(intId);
+            synchronized (Const.LOCK_OBJECT) {
+                int intId = Integer.parseInt(id);
+                return notiDao.delete(intId);
+            }
         });
 
         try {
@@ -106,7 +108,9 @@ public class NotiRepository {
 
     public int deleteNoti(int id) {
         Future<Integer> future = executor.submit(() -> {
-            return notiDao.delete(id);
+            synchronized (Const.LOCK_OBJECT) {
+                return notiDao.delete(id);
+            }
         });
 
         try {
