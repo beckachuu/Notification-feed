@@ -16,10 +16,14 @@ import androidx.core.content.PermissionChecker;
 
 import com.beckachu.androidfeed.BuildConfig;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Util {
+
+    public static DateFormat format = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
 
     public static String getAppNameFromPackage(Context context, String packageName, boolean returnNull) {
         final PackageManager pm = context.getApplicationContext().getPackageManager();

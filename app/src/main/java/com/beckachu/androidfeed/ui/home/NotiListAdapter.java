@@ -18,24 +18,18 @@ import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
+import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.ui.noti_detail.DetailsActivity;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
-    private final static int LIMIT = Integer.MAX_VALUE;
-    private final static String PAGE_SIZE = "20";
-
-    private DateFormat format = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
-
     private Activity context;
     private ArrayList<NotiModel> data = new ArrayList<>();
-    private HashMap<String, Drawable> iconCache = new HashMap<>();
+    private static HashMap<String, Drawable> iconCache = new HashMap<>();
     private Handler handler = new Handler();
 
     private String lastDate = "";
@@ -114,6 +108,7 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
         if (position == getItemCount() - 1) {
             loadMore(notiModel.getId());
+            if (Const.DEBUG) System.out.println("Loading more at position " + position);
         }
     }
 
@@ -135,7 +130,7 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
             for (int i = 0; i < olderNotis.size(); i++) {
                 NotiEntity notiEntity = olderNotis.get(i);
-                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(), format);
+                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(), Util.format);
 
                 String thisDate = notiModel.getDate();
                 if (lastDate.equals(thisDate)) {
@@ -151,16 +146,11 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         int after = getItemCount();
 
         if (before == after) {
-            if (Const.DEBUG) System.out.println("no new items loaded: " + getItemCount());
+            if (Const.DEBUG) System.out.println("Loaded all " + getItemCount() + " items");
             shouldLoadMore = false;
         }
 
-        if (getItemCount() > LIMIT) {
-            if (Const.DEBUG)
-                System.out.println("reached the limit, not loading more items: " + getItemCount());
-            shouldLoadMore = false;
-        }
-
+        // TODO: what does this do?
         handler.post(() -> notifyDataSetChanged());
     }
 

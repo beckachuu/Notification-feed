@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -33,8 +34,103 @@ public class NotiEntity {
     @Ignore
     public android.app.Notification noti;
 
-    // General
+    @PrimaryKey(autoGenerate = true)
+    public int nid;
     public String packageName;
+
+    public long postTime;
+    public long systemTime;
+
+    public boolean isClearable;
+    public boolean isOngoing;
+
+    public long when;
+    public int number;
+    public int flags;
+    public int defaults;
+    public int ledARGB;
+    public int ledOff;
+    public int ledOn;
+
+    // Device
+    public int ringerMode;
+    public boolean isScreenOn;
+    public int batteryLevel;
+    public String batteryStatus;
+    //    public boolean isConnected;
+    //    public String connectionType;
+    public String lastActivity;
+    public String lastLocation;
+
+    // Compat
+    public String group;
+    public boolean isGroupSummary;
+    public String category;
+    public int actionCount;
+    public boolean isLocalOnly;
+
+    @Ignore
+    public List people;
+    public String style;
+
+    // 16
+    public int priority;
+
+    // 18
+    public String tag;
+
+    // 20
+    public String key;
+    public String sortKey;
+
+    // 21
+    public int visibility;
+    public int color;
+    public int interruptionFilter;
+    public int listenerHints;
+    public boolean matchesInterruptionFilter;
+
+
+    // Text
+    public String appName;
+    public String tickerText;
+    public String title;
+    public String titleBig;
+    public String text;
+    public String textBig;
+    public String textInfo;
+    public String textSub;
+    public String textSummary;
+    public String textLines;
+
+    public NotiEntity() {
+    }
+
+    public NotiEntity(Context context, StatusBarNotification sbn) {
+        this.context = context;
+
+        noti = sbn.getNotification();
+        packageName = sbn.getPackageName();
+        postTime = sbn.getPostTime();
+        systemTime = System.currentTimeMillis();
+
+        isClearable = sbn.isClearable();
+        isOngoing = sbn.isOngoing();
+
+        tag = sbn.getTag();
+
+        key = sbn.getKey();
+        sortKey = noti.getSortKey();
+
+        extract();
+
+        if (Const.ENABLE_ACTIVITY_RECOGNITION || Const.ENABLE_LOCATION_SERVICE) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+            lastActivity = sp.getString(Const.PREF_LAST_ACTIVITY, null);
+            lastLocation = sp.getString(Const.PREF_LAST_LOCATION, null);
+        }
+    }
+
 
     public String getPackageName() {
         return packageName;
@@ -385,101 +481,6 @@ public class NotiEntity {
         this.textLines = textLines;
     }
 
-    public long postTime;
-    public long systemTime;
-
-    public boolean isClearable;
-    public boolean isOngoing;
-
-    public long when;
-    public int number;
-    public int flags;
-    public int defaults;
-    public int ledARGB;
-    public int ledOff;
-    public int ledOn;
-
-    // Device
-    public int ringerMode;
-    public boolean isScreenOn;
-    public int batteryLevel;
-    public String batteryStatus;
-    //    public boolean isConnected;
-//    public String connectionType;
-    public String lastActivity;
-    public String lastLocation;
-
-    // Compat
-    public String group;
-    public boolean isGroupSummary;
-    public String category;
-    public int actionCount;
-    public boolean isLocalOnly;
-
-    @Ignore
-    public List people;
-    public String style;
-
-    // 16
-    public int priority;
-
-    // 18
-    @PrimaryKey(autoGenerate = true)
-    public int nid;
-    public String tag;
-
-    // 20
-    public String key;
-    public String sortKey;
-
-    // 21
-    public int visibility;
-    public int color;
-    public int interruptionFilter;
-    public int listenerHints;
-    public boolean matchesInterruptionFilter;
-
-
-    // Text
-    public String appName;
-    public String tickerText;
-    public String title;
-    public String titleBig;
-    public String text;
-    public String textBig;
-    public String textInfo;
-    public String textSub;
-    public String textSummary;
-    public String textLines;
-
-    public NotiEntity() {
-    }
-
-    public NotiEntity(Context context, StatusBarNotification sbn) {
-        this.context = context;
-
-        noti = sbn.getNotification();
-        packageName = sbn.getPackageName();
-        postTime = sbn.getPostTime();
-        systemTime = System.currentTimeMillis();
-
-        isClearable = sbn.isClearable();
-        isOngoing = sbn.isOngoing();
-
-//        nid = sbn.getId();
-        tag = sbn.getTag();
-
-        key = sbn.getKey();
-        sortKey = noti.getSortKey();
-
-        extract();
-
-        if (Const.ENABLE_ACTIVITY_RECOGNITION || Const.ENABLE_LOCATION_SERVICE) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-            lastActivity = sp.getString(Const.PREF_LAST_ACTIVITY, null);
-            lastLocation = sp.getString(Const.PREF_LAST_LOCATION, null);
-        }
-    }
 
     public void extract() {
         // General
@@ -552,12 +553,16 @@ public class NotiEntity {
         }
     }
 
+    @NonNull
     @Override
     public String toString() {
         try {
             JSONObject json = new JSONObject();
 
             // General
+            json.put("nid", nid);
+            json.put("tag", tag);
+            json.put("appName", appName);
             json.put("packageName", packageName);
             json.put("postTime", postTime);
             json.put("systemTime", systemTime);
@@ -606,14 +611,8 @@ public class NotiEntity {
             json.put("textSummary", textSummary);
             json.put("textLines", textLines);
 
-            json.put("appName", appName);
-
             // 16
             json.put("priority", priority);
-
-            // 18
-            json.put("nid", nid);
-            json.put("tag", tag);
 
             // 20
             json.put("key", key);
@@ -640,7 +639,7 @@ public class NotiEntity {
             return json.toString();
         } catch (Exception e) {
             if (Const.DEBUG) e.printStackTrace();
-            return null;
+            return "";
         }
     }
 

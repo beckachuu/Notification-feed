@@ -14,24 +14,20 @@ import com.beckachu.androidfeed.misc.Const;
 public class NotificationHandler {
     private Context context;
     private NotiRepository notiRepository;
-    private SharedPreferences sharedPref;
 
     NotificationHandler(Context context) {
         this.context = context;
         this.notiRepository = new NotiRepository(context.getApplicationContext());
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     void handlePosted(StatusBarNotification sbn) {
-        if (sbn.isOngoing() && !sharedPref.getBoolean(Const.PREF_ONGOING, false)) {
-            if (Const.DEBUG) System.out.println("posted ongoing!");
-            return;
+        if (sbn.isOngoing()) {
+            if (Const.DEBUG) System.out.println("got ongoing noti!");
         }
-        boolean logText = sharedPref.getBoolean(Const.PREF_TEXT, true);
         NotiEntity notiEntity = new NotiEntity(context, sbn);
-
         notiRepository.addNoti(context, notiEntity);
-        if (Const.DEBUG) System.out.println("added noti: " + notiEntity.getText());
+        if (Const.DEBUG)
+            System.out.println("added noti " + notiEntity.getNid() + ": " + notiEntity.getText());
     }
 
     /**
