@@ -24,20 +24,25 @@ public class NotificationHandler {
     }
 
     void handlePosted(StatusBarNotification sbn) {
-        final String lastKey = SharedPrefsManager.getString(sharedPrefs, Const.LAST_NOTI_KEY, "");
-        if (lastKey.equals(sbn.getKey())) {
+        NotiEntity notiEntity = new NotiEntity(context, sbn);
+        final String lastKey = SharedPrefsManager.getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, "");
+        final String currentKey = sbn.getKey();
+        final String lastTitle = SharedPrefsManager.getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, "");
+        final String currentTitle = notiEntity.getTitle();
+        final String lastText = SharedPrefsManager.getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, "");
+        final String currentText = notiEntity.getText();
+        if (lastKey.equals(currentKey) && lastTitle.equals(currentTitle) && lastText.equals(currentText)) {
             if (Const.DEBUG)
-                System.out.println("DUPLICATED: [[[" + lastKey + "]]] (last key) vs [[[" + sbn.getKey() + "]]] (current key)");
+                System.out.println("DUPLICATED: [[[" + lastKey + "]]] (last key) vs [[[" + currentKey + "]]] (current key)");
             return;
         }
-        if (Const.DEBUG)
-            System.out.println("NOT duplicated: [[[" + lastKey + "]]] (last key) vs [[[" + sbn.getKey() + "]]] (current key)");
-        SharedPrefsManager.putString(sharedPrefs, Const.LAST_NOTI_KEY, sbn.getKey());
 
-        if (sbn.isOngoing()) {
-            if (Const.DEBUG) System.out.println("got ongoing noti!");
-        }
-        NotiEntity notiEntity = new NotiEntity(context, sbn);
+        // Now it's good to add new notification
+        if (Const.DEBUG)
+            System.out.println("NOT duplicated keys: [[[" + lastKey + "]]] (last key) vs [[[" + sbn.getKey() + "]]] (current key)");
+        SharedPrefsManager.putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, currentKey);
+        SharedPrefsManager.putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, currentTitle);
+        SharedPrefsManager.putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, currentText);
         notiRepository.addNoti(context, notiEntity);
         if (Const.DEBUG)
             System.out.println("added noti " + notiEntity.getNid() + ": " + notiEntity.getText());
