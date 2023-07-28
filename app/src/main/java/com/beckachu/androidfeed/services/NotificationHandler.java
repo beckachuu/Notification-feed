@@ -7,20 +7,33 @@ import android.service.notification.StatusBarNotification;
 
 import androidx.preference.PreferenceManager;
 
+import com.beckachu.androidfeed.data.SharedPrefsManager;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
 
 public class NotificationHandler {
-    private Context context;
-    private NotiRepository notiRepository;
+    private final Context context;
+    private final NotiRepository notiRepository;
+    private final SharedPreferences sharedPrefs;
 
     NotificationHandler(Context context) {
         this.context = context;
         this.notiRepository = new NotiRepository(context.getApplicationContext());
+        this.sharedPrefs = context.getApplicationContext().getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE);
     }
 
     void handlePosted(StatusBarNotification sbn) {
+        final String lastKey = SharedPrefsManager.getString(sharedPrefs, Const.LAST_NOTI_KEY, "");
+        if (lastKey.equals(sbn.getKey())) {
+            if (Const.DEBUG)
+                System.out.println("DUPLICATED: [[[" + lastKey + "]]] (last key) vs [[[" + sbn.getKey() + "]]] (current key)");
+            return;
+        }
+        if (Const.DEBUG)
+            System.out.println("NOT duplicated: [[[" + lastKey + "]]] (last key) vs [[[" + sbn.getKey() + "]]] (current key)");
+        SharedPrefsManager.putString(sharedPrefs, Const.LAST_NOTI_KEY, sbn.getKey());
+
         if (sbn.isOngoing()) {
             if (Const.DEBUG) System.out.println("got ongoing noti!");
         }
