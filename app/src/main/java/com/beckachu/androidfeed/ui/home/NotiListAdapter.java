@@ -1,9 +1,14 @@
 package com.beckachu.androidfeed.ui.home;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +16,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.beckachu.androidfeed.R;
+import com.beckachu.androidfeed.data.SharedPrefsManager;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
@@ -34,13 +41,28 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
     private static String lastDate = "";
     private static NotiModel newestNoti = null;
     private boolean shouldLoadMore = true;
-    private NotiRepository notiRepository;
+
+    private final NotiRepository notiRepository;
+    private final SharedPreferences sharedPrefs;
 
     NotiListAdapter(Activity context) {
         this.context = context;
 
         this.notiRepository = new NotiRepository(context.getApplicationContext());
         this.sharedPrefs = context.getApplicationContext().getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE);
+
+        // Register the BroadcastReceiver with LocalBroadcastManager
+        // Update the data source of the Adapter
+        BroadcastReceiver updateAdapterReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // Update the data source of the Adapter
+                data.add(0, newestNoti);
+                notifyItemInserted(0);
+            }
+        };
+        LocalBroadcastManager.getInstance(this.context)
+                .registerReceiver(updateAdapterReceiver, new IntentFilter(Const.UPDATE_NEWEST));
 
         loadMoreBeforeId(Const.NEGATIVE);
     }
@@ -75,6 +97,7 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
                 context.startActivityForResult(intent, 1, options.toBundle());
             }
         });
+
         return viewHolder;
     }
 
@@ -153,7 +176,23 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         }
 
         // TODO: what does this do?
-        handler.post(() -> notifyDataSetChanged());
+        new Handler(Looper.getMainLooper()).post(this::notifyDataSetChanged);
+    }
+
+    public static void setNewestNoti(NotiModel newNotiModel) {
+        newestNoti = newNotiModel;
+    }
+
+    public static String getLastDate() {
+        return lastDate;
+    }
+
+    public static void setLastDate(String newLastDate) {
+        lastDate = newLastDate;
+    }
+
+    public static HashMap<String, Drawable> getIconCache() {
+        return iconCache;
     }
 
 }

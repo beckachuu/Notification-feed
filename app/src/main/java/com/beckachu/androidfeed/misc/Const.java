@@ -7,8 +7,8 @@ public class Const {
     public static final boolean DEBUG = BuildConfig.DEBUG;
     public static final Object LOCK_OBJECT = new Object();
 
-    // Shared preferences keys
-    public static final String LAST_NOTI_KEY = "LAST_KEY";
+    public static final int NEGATIVE = -1;
+    public static int PAGE_SIZE = 20;
 
     // Feature flags
     public static final boolean ENABLE_ACTIVITY_RECOGNITION = true;
