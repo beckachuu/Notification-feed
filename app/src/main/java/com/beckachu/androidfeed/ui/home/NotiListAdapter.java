@@ -25,21 +25,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
+public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
-    private Activity context;
-    private ArrayList<NotiModel> data = new ArrayList<>();
-    private static HashMap<String, Drawable> iconCache = new HashMap<>();
-    private Handler handler = new Handler();
+    private final Activity context;
+    private final ArrayList<NotiModel> data = new ArrayList<>();
+    private static final HashMap<String, Drawable> iconCache = new HashMap<>();
 
-    private String lastDate = "";
+    private static String lastDate = "";
+    private static NotiModel newestNoti = null;
     private boolean shouldLoadMore = true;
     private NotiRepository notiRepository;
 
     NotiListAdapter(Activity context) {
         this.context = context;
+
         this.notiRepository = new NotiRepository(context.getApplicationContext());
-        loadMore(Integer.MAX_VALUE);
+        this.sharedPrefs = context.getApplicationContext().getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE);
+
+        loadMoreBeforeId(Const.NEGATIVE);
     }
 
     @NonNull
@@ -77,6 +80,11 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull NotiListViewHolder viewHolder, int position) {
+//        if (Const.DEBUG) System.out.println("POSITION: " + position);
+        if (position == 0) {
+            SharedPrefsManager.putInt(sharedPrefs, SharedPrefsManager.UNREAD_COUNT, 0);
+        }
+
         NotiModel notiModel = data.get(position);
 
         if (iconCache.containsKey(notiModel.getPackageName()) && iconCache.get(notiModel.getPackageName()) != null) {
@@ -107,7 +115,7 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         }
 
         if (position == getItemCount() - 1) {
-            loadMore(notiModel.getId());
+            loadMoreBeforeId(notiModel.getId());
             if (Const.DEBUG) System.out.println("Loading more at position " + position);
         }
     }
@@ -117,26 +125,20 @@ class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         return data.size();
     }
 
-    private void loadMore(long afterId) {
+    private void loadMoreBeforeId(long id) {
         if (!shouldLoadMore) {
-            if (Const.DEBUG) System.out.println("not loading more items");
             return;
         }
 
-        if (Const.DEBUG) System.out.println("loading more items");
         int before = getItemCount();
         try {
-            List<NotiEntity> olderNotis = notiRepository.getAllNotisOlderThanId(afterId);
+            List<NotiEntity> olderNotis = notiRepository.getAllNotisOlderThanId(id);
 
             for (int i = 0; i < olderNotis.size(); i++) {
                 NotiEntity notiEntity = olderNotis.get(i);
-                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(), Util.format);
-
-                String thisDate = notiModel.getDate();
-                if (lastDate.equals(thisDate)) {
-                    notiModel.setShowDate(false);
-                }
-                lastDate = thisDate;
+                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(),
+                        Util.format, lastDate);
+                lastDate = notiModel.getDate();
                 data.add(notiModel);
             }
 

@@ -9,7 +9,9 @@ import android.os.Looper;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.beckachu.androidfeed.data.AppDatabase;
+import com.beckachu.androidfeed.data.entities.MyAppEntity;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.local.dao.MyAppDao;
 import com.beckachu.androidfeed.data.local.dao.NotiDao;
 import com.beckachu.androidfeed.misc.Const;
 
@@ -28,10 +30,12 @@ public class NotiRepository {
     public static final String BROADCAST = "com.beckachu.androidfeed.update";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final NotiDao notiDao;
+    private final MyAppDao myAppDao;
 
     public NotiRepository(Context context) {
         AppDatabase db = AppDatabase.getInstance(context);
         notiDao = db.notiDao();
+        myAppDao = db.myAppDao();
     }
 
     /*
@@ -55,7 +59,11 @@ public class NotiRepository {
     }
 
     public List<NotiEntity> getAllNotisOlderThanId(long id) {
-        Future<List<NotiEntity>> future = executor.submit(() -> notiDao.getAllOlderThanId(id));
+        Future<List<NotiEntity>> future = executor.submit(() -> {
+            if (id != Const.NEGATIVE)
+                return notiDao.getAllOlderThanId(id, Const.PAGE_SIZE);
+            else return notiDao.getNewest(Const.PAGE_SIZE);
+        });
 
         try {
             return future.get();
@@ -79,8 +87,10 @@ public class NotiRepository {
     public void addNoti(Context context, NotiEntity notiEntity) {
         executor.execute(() -> {
             synchronized (Const.LOCK_OBJECT) {
-                if (!notiEntity.getText().equals("") && !notiEntity.getTitle().equals("")) {
+                if (!notiEntity.isGroupSummary()) {
                     notiDao.insert(notiEntity);
+                    myAppDao.insertApp(new MyAppEntity(context, notiEntity.getPackageName()));
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                         Intent local = new Intent();
                         local.setAction(BROADCAST);

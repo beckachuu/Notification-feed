@@ -21,8 +21,11 @@ public interface NotiDao {
     @Query("SELECT * FROM notientity ORDER BY nid ASC")
     List<NotiEntity> getAllByIdAsc();
 
-    @Query("SELECT * FROM notientity WHERE nid < :id ORDER BY nid DESC")
-    List<NotiEntity> getAllOlderThanId(long id);
+    @Query("SELECT * FROM notientity WHERE nid < :id ORDER BY nid DESC LIMIT :pageSize")
+    List<NotiEntity> getAllOlderThanId(long id, int pageSize);
+
+    @Query("SELECT * FROM notientity ORDER BY nid DESC LIMIT :pageSize")
+    List<NotiEntity> getNewest(int pageSize);
 
     @Query("SELECT * FROM notientity WHERE nid = :id")
     NotiEntity getById(int id);
@@ -30,7 +33,7 @@ public interface NotiDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insert(NotiEntity notiEntity);
 
-    @Query("DELETE FROM notientity WHERE nid = :notiId")
-    int delete(int notiId);
+    @Query("DELETE FROM notientity WHERE nid = :id")
+    int delete(int id);
 
 }

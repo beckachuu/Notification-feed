@@ -18,7 +18,7 @@ import java.util.HashMap;
  * this doesn't need all the Entity's data fields)
  */
 public class NotiModel {
-    private long id;
+    private final long id;
     private String packageName;
     private String appName;
     private String title;
@@ -27,7 +27,8 @@ public class NotiModel {
     private String date;
     private boolean showDate;
 
-    public NotiModel(Context context, long id, HashMap<String, Drawable> iconCache, String str, DateFormat format) {
+    public NotiModel(Context context, long id, HashMap<String, Drawable> iconCache, String str,
+                     DateFormat format, String lastDate) {
         this.id = id;
         try {
             JSONObject json = new JSONObject(str);
@@ -43,7 +44,8 @@ public class NotiModel {
             }
 
             this.date = format.format(json.optLong("systemTime"));
-            this.showDate = true;
+            this.showDate = !lastDate.equals(this.date);
+
         } catch (JSONException e) {
             if (Const.DEBUG) e.printStackTrace();
         }
