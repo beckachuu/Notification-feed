@@ -9,8 +9,11 @@ import java.util.Set;
 
 public class SharedPrefsManager {
     public static final String DEFAULT_NAME = "General";
-    public static final String UNREAD_COUNT = "UNREAD_COUNT";
 
+    public static final String UNREAD_COUNT = "UNREAD_COUNT";
+    public static final String LAST_NOTI_KEY = "LAST_KEY";
+    public static final String LAST_NOTI_TITLE = "LAST_NOTI_TITLE";
+    public static final String LAST_NOTI_TEXT = "LAST_NOTI_TEXT";
 
     public static String getString(SharedPreferences prefs, String key, String defaultValue) {
         return prefs.getString(key, defaultValue);

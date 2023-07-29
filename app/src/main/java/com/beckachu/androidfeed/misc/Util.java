@@ -5,6 +5,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.BatteryManager;
@@ -51,6 +54,11 @@ public class Util {
             if (Const.DEBUG) e.printStackTrace();
         }
         return drawable;
+    }
+
+    public static Drawable getAppIconFromByteArray(Context context, byte[] byteArray) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        return new BitmapDrawable(context.getResources(), bitmap);
     }
 
     public static String nullToEmptyString(CharSequence charsequence) {

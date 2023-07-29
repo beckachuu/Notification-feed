@@ -100,16 +100,10 @@ public class MainActivity extends AppCompatActivity {
     private void populateNavDrawer(Menu menu) {
         List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
 
-        if (appList.size() >= 0) {
-            Set<String> packageNames = new HashSet<>();
-            List<NotiEntity> notiEntityList = notiRepository.getAllNotisByIdAsc();
-            if (notiEntityList != null) {
-                for (NotiEntity notiEntity : notiEntityList) {
-                    String packageName = notiEntity.getPackageName();
-                    if (packageNames.add(packageName)) {
-                        myAppRepository.addApp(new MyAppEntity(this, packageName));
-                    }
-                }
+        if (appList.size() == 0) {
+            Set<String> packageNames = myAppRepository.getPackageNamesFromNoti();
+            for (String packageName : packageNames) {
+                myAppRepository.addApp(new MyAppEntity(this, packageName));
             }
         }
 
@@ -118,14 +112,12 @@ public class MainActivity extends AppCompatActivity {
             for (MyAppEntity myApp : appList) {
                 String appName = myApp.getAppName();
                 String packageName = myApp.getPackageName();
-                Drawable appIcon = Util.getAppIconFromPackage(this, packageName);
 
                 int newId = generateIdFromString(packageName);
                 MenuItem newItem = menu.add(Menu.NONE, newId, Menu.NONE, appName);
-                newItem.setIcon(appIcon);
+                newItem.setIcon(Util.getAppIconFromByteArray(this, myApp.getIconByte()));
             }
         }
-
     }
 
 

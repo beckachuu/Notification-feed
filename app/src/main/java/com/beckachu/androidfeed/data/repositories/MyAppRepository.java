@@ -7,7 +7,9 @@ import com.beckachu.androidfeed.data.entities.MyAppEntity;
 import com.beckachu.androidfeed.data.local.dao.MyAppDao;
 import com.beckachu.androidfeed.misc.Const;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,6 +37,19 @@ public class MyAppRepository {
 
     public List<MyAppEntity> getAllAppByNameAsc() {
         Future<List<MyAppEntity>> future = executor.submit(myAppDao::getAllByNameAsc);
+
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            if (Const.DEBUG) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    public Set<String> getPackageNamesFromNoti() {
+        Future<Set<String>> future = executor.submit(() -> new HashSet<>(myAppDao.getPackageNamesFromNoti()));
 
         try {
             return future.get();

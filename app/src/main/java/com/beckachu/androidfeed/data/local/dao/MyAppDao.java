@@ -19,6 +19,9 @@ public interface MyAppDao {
     @Query("SELECT * FROM myappentity ORDER BY appName ASC")
     List<MyAppEntity> getAllByNameAsc();
 
+    @Query("SELECT DISTINCT packageName FROM notientity ORDER BY appName ASC")
+    List<String> getPackageNamesFromNoti();
+
     // Insert an app
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertApp(MyAppEntity myAppEntity);
