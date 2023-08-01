@@ -34,9 +34,9 @@ import java.util.List;
 
 public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
+    public static final HashMap<String, Drawable> iconCache = new HashMap<>();
     private final Activity context;
     private final ArrayList<NotiModel> data = new ArrayList<>();
-    private static final HashMap<String, Drawable> iconCache = new HashMap<>();
 
     private static String lastDate = "";
     private static NotiModel newestNoti = null;
@@ -177,6 +177,10 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
         // TODO: what does this do?
         new Handler(Looper.getMainLooper()).post(this::notifyDataSetChanged);
+    }
+
+    public static NotiModel getNewestNoti() {
+        return newestNoti;
     }
 
     public static void setNewestNoti(NotiModel newNotiModel) {

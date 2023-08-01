@@ -1,9 +1,11 @@
 package com.beckachu.androidfeed;
 
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,39 +15,39 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.beckachu.androidfeed.data.entities.MyAppEntity;
-import com.beckachu.androidfeed.data.entities.NotiEntity;
+import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.MyAppRepository;
-import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
+import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.services.NotificationListener;
-import com.beckachu.androidfeed.ui.noti_detail.DetailsActivity;
+import com.beckachu.androidfeed.ui.home.NotiListAdapter;
+import com.beckachu.androidfeed.ui.settings.SettingsFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private NotiRepository notiRepository;
     private MyAppRepository myAppRepository;
+    private HashMap<String, Drawable> iconCache = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        notiRepository = new NotiRepository(this);
         myAppRepository = new MyAppRepository(this);
+        startService(new Intent(this, NotificationListener.class));
 
         /*
          * Show "NotiEntity access" setting screen (in case the app didn't have this permission)
@@ -58,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
-        startService(new Intent(this, NotificationListener.class));
 
         /*
          * Show "Autostart" setting screen (in case the app didn't have this permission)
@@ -87,17 +88,33 @@ public class MainActivity extends AppCompatActivity {
                 .setOpenableLayout(drawer)
                 .build();
 
-        NavController navController = Navigation.findNavController(this, R.id.noti_list_fragment);
+        NavController navController = Navigation.findNavController(this, R.id.fragment_container);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-
         // MENU
         Menu menu = navigationView.getMenu();
-        populateNavDrawer(menu);
+        initNavDrawer(menu);
+
+        // Auto add new app when new noti posted
+        BroadcastReceiver updateAdapterReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                NotiModel newNoti = NotiListAdapter.getNewestNoti();
+                String packageName = newNoti.getPackageName();
+                if (!iconCache.containsKey(packageName)) {
+                    Drawable appIcon = Util.getAppIconFromPackage(context, packageName);
+                    iconCache.put(packageName, appIcon);
+                    MenuItem newItem = menu.add(R.id.apps_group, packageName.hashCode(), 0, newNoti.getAppName());
+                    newItem.setIcon(appIcon);
+                }
+            }
+        };
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(updateAdapterReceiver, new IntentFilter(Const.UPDATE_NEWEST));
     }
 
-    private void populateNavDrawer(Menu menu) {
+    private void initNavDrawer(Menu menu) {
         List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
 
         if (appList.size() == 0) {
@@ -107,29 +124,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        appList = myAppRepository.getAllAppByNameAsc();
-        if (appList.size() > 0) {
-            for (MyAppEntity myApp : appList) {
-                String appName = myApp.getAppName();
-                String packageName = myApp.getPackageName();
-
-                int newId = generateIdFromString(packageName);
-                MenuItem newItem = menu.add(Menu.NONE, newId, Menu.NONE, appName);
-                newItem.setIcon(Util.getAppIconFromByteArray(this, myApp.getIconByte()));
-            }
-        }
+        populateNavDrawer(menu);
     }
 
-
-    Map<String, Integer> idMap = new HashMap<>();
-
-    private int generateIdFromString(String string) {
-        int id = idMap.getOrDefault(string, 0);
-        if (idMap.containsKey(string)) {
-            id = id + 1;
+    private void populateNavDrawer(Menu menu) {
+        List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
+        if (appList.size() > 0) {
+            for (MyAppEntity myApp : appList) {
+                String packageName = myApp.getPackageName();
+                Drawable appIcon = Util.getAppIconFromByteArray(this, myApp.getIconByte());
+                iconCache.put(packageName, appIcon);
+                MenuItem newItem = menu.add(R.id.apps_group, packageName.hashCode(), Menu.NONE, myApp.getAppName());
+                newItem.setIcon(appIcon);
+            }
         }
-        idMap.put(string, id);
-        return id;
     }
 
     @Override
