@@ -1,19 +1,13 @@
 package com.beckachu.androidfeed.services;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.service.notification.StatusBarNotification;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import com.beckachu.androidfeed.data.SharedPrefsManager;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
-import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
-import com.beckachu.androidfeed.misc.Util;
-import com.beckachu.androidfeed.ui.home.NotiListAdapter;
 
 public class NotificationHandler {
     private final Context context;
@@ -50,14 +44,6 @@ public class NotificationHandler {
         // Update new notification count
         int unreadCount = SharedPrefsManager.getInt(this.sharedPrefs, SharedPrefsManager.UNREAD_COUNT, 0);
         SharedPrefsManager.putInt(this.sharedPrefs, SharedPrefsManager.UNREAD_COUNT, unreadCount + 1);
-
-        // Update notification list screen
-        NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), NotiListAdapter.getIconCache(),
-                notiEntity.toString(), Util.format, NotiListAdapter.getLastDate());
-        NotiListAdapter.setLastDate(notiModel.getDate());
-        NotiListAdapter.setNewestNoti(notiModel);
-        Intent intent = new Intent(Const.UPDATE_NEWEST);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
         if (Const.DEBUG)
             System.out.println("Added noti [" + sbn.getKey() + "]: " + notiEntity.getText());

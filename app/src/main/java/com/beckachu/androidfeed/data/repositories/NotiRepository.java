@@ -13,7 +13,10 @@ import com.beckachu.androidfeed.data.entities.MyAppEntity;
 import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.local.dao.MyAppDao;
 import com.beckachu.androidfeed.data.local.dao.NotiDao;
+import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.misc.Const;
+import com.beckachu.androidfeed.misc.Util;
+import com.beckachu.androidfeed.ui.home.NotiListAdapter;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -90,6 +93,14 @@ public class NotiRepository {
                 if (!notiEntity.isGroupSummary()) {
                     notiDao.insert(notiEntity);
                     myAppDao.insertApp(new MyAppEntity(context, notiEntity.getPackageName()));
+
+                    // Update notification list screen
+                    NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), NotiListAdapter.getIconCache(),
+                            notiEntity.toString(), Util.format, NotiListAdapter.getLastDate());
+                    NotiListAdapter.setLastDate(notiModel.getDate());
+                    NotiListAdapter.setNewestNoti(notiModel);
+                    Intent intent = new Intent(Const.UPDATE_NEWEST);
+                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
                     new Handler(Looper.getMainLooper()).post(() -> {
                         Intent local = new Intent();
