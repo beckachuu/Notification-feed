@@ -1,7 +1,6 @@
 package com.beckachu.androidfeed;
 
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,13 +21,12 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.beckachu.androidfeed.data.entities.MyAppEntity;
-import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.MyAppRepository;
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
+import com.beckachu.androidfeed.services.broadcast.AppReceiver;
 import com.beckachu.androidfeed.services.NotificationListener;
-import com.beckachu.androidfeed.ui.home.NotiListAdapter;
 import com.beckachu.androidfeed.ui.settings.SettingsFragment;
 import com.google.android.material.navigation.NavigationView;
 
@@ -97,21 +95,9 @@ public class MainActivity extends AppCompatActivity {
         initNavDrawer(menu);
 
         // Auto add new app when new noti posted
-        BroadcastReceiver updateAdapterReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                NotiModel newNoti = NotiListAdapter.getNewestNoti();
-                String packageName = newNoti.getPackageName();
-                if (!iconCache.containsKey(packageName)) {
-                    Drawable appIcon = Util.getAppIconFromPackage(context, packageName);
-                    iconCache.put(packageName, appIcon);
-                    MenuItem newItem = menu.add(R.id.apps_group, packageName.hashCode(), 0, newNoti.getAppName());
-                    newItem.setIcon(appIcon);
-                }
-            }
-        };
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(updateAdapterReceiver, new IntentFilter(Const.UPDATE_NEWEST));
+        AppReceiver receiver = new AppReceiver(menu);
+        IntentFilter filter = new IntentFilter(Const.UPDATE_NEWEST);
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
     }
 
     private void initNavDrawer(Menu menu) {

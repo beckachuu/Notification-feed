@@ -39,7 +39,7 @@ public class NotificationHandler {
         SharedPrefsManager.putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, currentKey);
         SharedPrefsManager.putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, currentTitle);
         SharedPrefsManager.putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, currentText);
-        notiRepository.addNoti(context, notiEntity);
+        notiRepository.addNoti(context, notiEntity); // Broadcast for sent noti is implemented here
 
         // Update new notification count
         int unreadCount = SharedPrefsManager.getInt(this.sharedPrefs, SharedPrefsManager.UNREAD_COUNT, 0);

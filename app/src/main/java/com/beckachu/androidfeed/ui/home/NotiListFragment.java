@@ -1,5 +1,6 @@
 package com.beckachu.androidfeed.ui.home;
 
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,14 +8,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.beckachu.androidfeed.databinding.FragmentNotiListBinding;
+import com.beckachu.androidfeed.misc.Const;
+import com.beckachu.androidfeed.services.broadcast.NotificationReceiver;
 
 public class NotiListFragment extends Fragment {
 
-    private RecyclerView recyclerView;
     private FragmentNotiListBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -28,11 +31,16 @@ public class NotiListFragment extends Fragment {
 
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getContext());
-        recyclerView = binding.notiList;
+        RecyclerView recyclerView = binding.notiList;
         recyclerView.setLayoutManager(layoutManager);
 
         NotiListAdapter adapter = new NotiListAdapter(this.requireActivity());
         recyclerView.setAdapter(adapter);
+
+        // Register the NotificationReceiver with LocalBroadcastManager
+        NotificationReceiver receiver = new NotificationReceiver(adapter);
+        IntentFilter filter = new IntentFilter(Const.UPDATE_NEWEST);
+        LocalBroadcastManager.getInstance(this.requireActivity()).registerReceiver(receiver, filter);
 
         return root;
     }

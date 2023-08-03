@@ -3,8 +3,6 @@ package com.beckachu.androidfeed.data.repositories;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -30,7 +28,6 @@ import java.util.concurrent.Future;
  * without directly interacting with the database)
  */
 public class NotiRepository {
-    public static final String BROADCAST = "com.beckachu.androidfeed.update";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final NotiDao notiDao;
     private final MyAppDao myAppDao;
@@ -99,14 +96,10 @@ public class NotiRepository {
                             notiEntity.toString(), Util.format, NotiListAdapter.getLastDate());
                     NotiListAdapter.setLastDate(notiModel.getDate());
                     NotiListAdapter.setNewestNoti(notiModel);
+
+                    // Send update noti broadcast
                     Intent intent = new Intent(Const.UPDATE_NEWEST);
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        Intent local = new Intent();
-                        local.setAction(BROADCAST);
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(local);
-                    });
                 }
             }
         });

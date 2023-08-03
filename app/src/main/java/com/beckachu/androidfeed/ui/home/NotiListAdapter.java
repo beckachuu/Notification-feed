@@ -1,10 +1,8 @@
 package com.beckachu.androidfeed.ui.home;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -16,7 +14,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.beckachu.androidfeed.R;
@@ -35,7 +32,7 @@ import java.util.List;
 public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     public static final HashMap<String, Drawable> iconCache = new HashMap<>();
-    private final Activity context;
+    private final Activity activity;
     private final ArrayList<NotiModel> data = new ArrayList<>();
 
     private static String lastDate = "";
@@ -46,23 +43,10 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
     private final SharedPreferences sharedPrefs;
 
     NotiListAdapter(Activity context) {
-        this.context = context;
+        this.activity = context;
 
         this.notiRepository = new NotiRepository(context.getApplicationContext());
         this.sharedPrefs = context.getApplicationContext().getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE);
-
-        // Register the BroadcastReceiver with LocalBroadcastManager
-        // Update the data source of the Adapter
-        BroadcastReceiver updateAdapterReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                // Update the data source of the Adapter
-                data.add(0, newestNoti);
-                notifyItemInserted(0);
-            }
-        };
-        LocalBroadcastManager.getInstance(this.context)
-                .registerReceiver(updateAdapterReceiver, new IntentFilter(Const.UPDATE_NEWEST));
 
         loadMoreBeforeId(Const.NEGATIVE);
     }
@@ -90,11 +74,11 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         viewHolder.item.setOnClickListener(v -> {
             String id = (String) v.getTag();
             if (id != null) {
-                Intent intent = new Intent(context, DetailsActivity.class);
+                Intent intent = new Intent(activity, DetailsActivity.class);
                 intent.putExtra(DetailsActivity.EXTRA_ID, id);
                 Pair<View, String> p1 = Pair.create(viewHolder.icon, "icon");
-                @SuppressWarnings("unchecked") ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(context, p1);
-                context.startActivityForResult(intent, 1, options.toBundle());
+                @SuppressWarnings("unchecked") ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, p1);
+                activity.startActivityForResult(intent, 1, options.toBundle());
             }
         });
 
@@ -159,7 +143,7 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
             for (int i = 0; i < olderNotis.size(); i++) {
                 NotiEntity notiEntity = olderNotis.get(i);
-                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(),
+                NotiModel notiModel = new NotiModel(activity, notiEntity.getNid(), iconCache, notiEntity.toString(),
                         Util.format, lastDate);
                 lastDate = notiModel.getDate();
                 data.add(notiModel);
@@ -185,6 +169,10 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     public static void setNewestNoti(NotiModel newNotiModel) {
         newestNoti = newNotiModel;
+    }
+
+    public void addNewestNotiToAdapter() {
+        data.add(0, getNewestNoti());
     }
 
     public static String getLastDate() {
