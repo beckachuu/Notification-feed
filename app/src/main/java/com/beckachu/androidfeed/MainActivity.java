@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -25,26 +24,24 @@ import com.beckachu.androidfeed.data.repositories.MyAppRepository;
 import com.beckachu.androidfeed.databinding.ActivityMainBinding;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
-import com.beckachu.androidfeed.services.broadcast.AppReceiver;
 import com.beckachu.androidfeed.services.NotificationListener;
-import com.beckachu.androidfeed.ui.settings.SettingsFragment;
+import com.beckachu.androidfeed.services.broadcast.AppReceiver;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
-
     private AppBarConfiguration mAppBarConfiguration;
     private MyAppRepository myAppRepository;
-    private HashMap<String, Drawable> iconCache = new HashMap<>();
+    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         myAppRepository = new MyAppRepository(this);
+
         startService(new Intent(this, NotificationListener.class));
 
         /*
@@ -82,11 +79,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home)
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home, R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
 
-        NavController navController = Navigation.findNavController(this, R.id.fragment_container);
+        navController = Navigation.findNavController(this, R.id.fragment_container);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
@@ -117,10 +114,8 @@ public class MainActivity extends AppCompatActivity {
         List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
         if (appList.size() > 0) {
             for (MyAppEntity myApp : appList) {
-                String packageName = myApp.getPackageName();
                 Drawable appIcon = Util.getAppIconFromByteArray(this, myApp.getIconByte());
-                iconCache.put(packageName, appIcon);
-                MenuItem newItem = menu.add(R.id.apps_group, packageName.hashCode(), Menu.NONE, myApp.getAppName());
+                MenuItem newItem = menu.add(R.id.apps_group, R.id.nav_home, Menu.NONE, myApp.getAppName());
                 newItem.setIcon(appIcon);
             }
         }
@@ -128,23 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.noti_list);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        NavController navController = Navigation.findNavController(this, R.id.noti_list_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
-
-//        int id = item.getItemId();
-//        Intent intent = new Intent(this, DetailsActivity.class);
-//        intent.putExtra(DetailsActivity.EXTRA_ID, id);
-//        startActivity(intent);
-//
-//        return super.onOptionsItemSelected(item);
-    }
-
 }

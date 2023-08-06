@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+    <PreferenceCategory android:title="Logging">
+        <Preference app:title="Export log" />
+        <Preference
+            android:summary="Import notifications from JSON log file"
+            app:title="Import from log" />
+        <Preference app:title="Delete all notifications" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Apps">
+        <DropDownPreference
+            android:entries="@array/entries"
+            android:entryValues="@array/entry_values"
+            android:key="dropdown"
+            android:title="@string/app_pref_title" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
