@@ -17,6 +17,5 @@ public class NotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // Update adapter
         adapter.addNewestNotiToAdapter();
-        adapter.notifyItemInserted(0);
     }
 }

@@ -58,11 +58,11 @@ public class NotiRepository {
         }
     }
 
-    public List<NotiEntity> getAllNotisOlderThanId(long id) {
+    public List<NotiEntity> getAllNotisOlderThanId(long id, String packageName) {
         Future<List<NotiEntity>> future = executor.submit(() -> {
             if (id != Const.NEGATIVE)
-                return notiDao.getAllOlderThanId(id, Const.PAGE_SIZE);
-            else return notiDao.getNewest(Const.PAGE_SIZE);
+                return notiDao.getAllOlderThanId(id, Const.PAGE_SIZE, packageName);
+            else return notiDao.getNewest(Const.PAGE_SIZE, packageName);
         });
 
         try {

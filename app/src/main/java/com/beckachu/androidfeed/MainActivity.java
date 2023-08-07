@@ -13,6 +13,9 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -26,14 +29,22 @@ import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
 import com.beckachu.androidfeed.services.NotificationListener;
 import com.beckachu.androidfeed.services.broadcast.AppReceiver;
+import com.beckachu.androidfeed.ui.home.NotiListFragment;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private MyAppRepository myAppRepository;
+
+    private FragmentManager fragmentManager;
+    private final Map<String, Fragment> fragmentCache = new HashMap<>();
+
+    private NavigationView navigationView;
     private NavController navController;
 
     @Override
@@ -41,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         myAppRepository = new MyAppRepository(this);
+        fragmentManager = getSupportFragmentManager();
 
         startService(new Intent(this, NotificationListener.class));
 
@@ -67,14 +79,14 @@ public class MainActivity extends AppCompatActivity {
 //            startActivity(intent);
 //        }
 
-
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarMain.toolbar);
 
         DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+
+        navigationView = binding.navView;
         navigationView.setItemIconTintList(null);
 
         // Passing each menu ID as a set of Ids because each
@@ -114,9 +126,28 @@ public class MainActivity extends AppCompatActivity {
         List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
         if (appList.size() > 0) {
             for (MyAppEntity myApp : appList) {
+                String packagename = myApp.getPackageName();
                 Drawable appIcon = Util.getAppIconFromByteArray(this, myApp.getIconByte());
                 MenuItem newItem = menu.add(R.id.apps_group, R.id.nav_home, Menu.NONE, myApp.getAppName());
                 newItem.setIcon(appIcon);
+
+                newItem.setOnMenuItemClickListener((item -> {
+                    if (Const.DEBUG) System.out.println("Clicked " + packagename);
+
+                    Fragment fragment = fragmentCache.get(packagename);
+                    if (fragment == null) {
+                        fragment = new NotiListFragment(packagename);
+                        fragmentCache.put(packagename, fragment);
+                    }
+                    
+                    FragmentTransaction fragTrans = getSupportFragmentManager().beginTransaction();
+
+                    fragTrans.setCustomAnimations(com.androidadvance.topsnackbar.R.anim.abc_fade_in, com.androidadvance.topsnackbar.R.anim.abc_shrink_fade_out_from_bottom);
+                    fragTrans.replace(R.id.fragment_container, fragment);
+                    fragTrans.commit();
+
+                    return false;
+                }));
             }
         }
     }

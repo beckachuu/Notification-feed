@@ -32,21 +32,24 @@ import java.util.List;
 public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     public static final HashMap<String, Drawable> iconCache = new HashMap<>();
-    private final Activity activity;
+    private Activity context;
     private final ArrayList<NotiModel> data = new ArrayList<>();
 
     private static String lastDate = "";
     private static NotiModel newestNoti = null;
     private boolean shouldLoadMore = true;
+    private final String packageName;
 
     private final NotiRepository notiRepository;
     private final SharedPreferences sharedPrefs;
 
-    NotiListAdapter(Activity context) {
-        this.activity = context;
+    NotiListAdapter(Activity context, String packageName) {
+        this.context = context;
 
         this.notiRepository = new NotiRepository(context.getApplicationContext());
         this.sharedPrefs = context.getApplicationContext().getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE);
+
+        this.packageName = packageName;
 
         loadMoreBeforeId(Const.NEGATIVE);
     }
@@ -74,11 +77,11 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         viewHolder.item.setOnClickListener(v -> {
             String id = (String) v.getTag();
             if (id != null) {
-                Intent intent = new Intent(activity, DetailsActivity.class);
+                Intent intent = new Intent(context, DetailsActivity.class);
                 intent.putExtra(DetailsActivity.EXTRA_ID, id);
                 Pair<View, String> p1 = Pair.create(viewHolder.icon, "icon");
-                @SuppressWarnings("unchecked") ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, p1);
-                activity.startActivityForResult(intent, 1, options.toBundle());
+                @SuppressWarnings("unchecked") ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(context, p1);
+                context.startActivityForResult(intent, 1, options.toBundle());
             }
         });
 
@@ -139,11 +142,11 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
         int before = getItemCount();
         try {
-            List<NotiEntity> olderNotis = notiRepository.getAllNotisOlderThanId(id);
+            List<NotiEntity> olderNotis = notiRepository.getAllNotisOlderThanId(id, this.packageName);
 
             for (int i = 0; i < olderNotis.size(); i++) {
                 NotiEntity notiEntity = olderNotis.get(i);
-                NotiModel notiModel = new NotiModel(activity, notiEntity.getNid(), iconCache, notiEntity.toString(),
+                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(),
                         Util.format, lastDate);
                 lastDate = notiModel.getDate();
                 data.add(notiModel);
@@ -172,7 +175,14 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
     }
 
     public void addNewestNotiToAdapter() {
-        data.add(0, getNewestNoti());
+        if (newestNoti.getPackageName().equals(this.packageName) || this.packageName.equals(Const.ALL_NOTI)) {
+            data.add(0, getNewestNoti());
+            notifyItemInserted(0);
+        }
+    }
+
+    public void setContext(Activity context) {
+        this.context = context;
     }
 
     public static String getLastDate() {

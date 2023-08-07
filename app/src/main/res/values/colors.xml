@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <!--    From nlog    -->
-    <color name="colorDivider">#dcdcdc</color>
+    <color name="background">#dcdcdc</color>
 
     <color name="colorText">#202020</color>
     <color name="colorTextMuted">#737373</color>

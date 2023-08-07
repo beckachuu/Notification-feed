@@ -21,11 +21,11 @@ public interface NotiDao {
     @Query("SELECT * FROM notientity ORDER BY nid ASC")
     List<NotiEntity> getAllByIdAsc();
 
-    @Query("SELECT * FROM notientity WHERE nid < :id ORDER BY nid DESC LIMIT :pageSize")
-    List<NotiEntity> getAllOlderThanId(long id, int pageSize);
+    @Query("SELECT * FROM notientity WHERE nid < :id AND packageName LIKE :packageName ORDER BY nid DESC LIMIT :pageSize")
+    List<NotiEntity> getAllOlderThanId(long id, int pageSize, String packageName);
 
-    @Query("SELECT * FROM notientity ORDER BY nid DESC LIMIT :pageSize")
-    List<NotiEntity> getNewest(int pageSize);
+    @Query("SELECT * FROM notientity WHERE packageName LIKE :packageName ORDER BY nid DESC LIMIT :pageSize")
+    List<NotiEntity> getNewest(int pageSize, String packageName);
 
     @Query("SELECT * FROM notientity WHERE nid = :id")
     NotiEntity getById(int id);

@@ -17,8 +17,16 @@ import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.services.broadcast.NotificationReceiver;
 
 public class NotiListFragment extends Fragment {
-
     private FragmentNotiListBinding binding;
+    private final String packagename;
+
+    public NotiListFragment() {
+        this.packagename = "%";
+    }
+
+    public NotiListFragment(String packagename) {
+        this.packagename = packagename;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -29,12 +37,11 @@ public class NotiListFragment extends Fragment {
 //        final TextView textView = binding.textHome;
 //        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         RecyclerView recyclerView = binding.notiList;
         recyclerView.setLayoutManager(layoutManager);
 
-        NotiListAdapter adapter = new NotiListAdapter(this.requireActivity());
+        NotiListAdapter adapter = new NotiListAdapter(this.requireActivity(), packagename);
         recyclerView.setAdapter(adapter);
 
         // Register the NotificationReceiver with LocalBroadcastManager

@@ -3,13 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/rounded_corners">
+    android:layout_height="wrap_content">
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorDivider" />
+        android:layout_height="1dp" />
 
     <TextView
         android:visibility="gone"
@@ -22,7 +20,7 @@
         android:textSize="14sp"
         android:textColor="@color/colorTextMuted"
         android:gravity="center"
-        android:background="@color/colorDivider"
+        android:background="@color/background"
         tools:ignore="HardcodedText" />
 
     <LinearLayout
@@ -32,8 +30,8 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:background="?android:selectableItemBackground"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/rounded_corners">
 
         <ImageView
             android:id="@+id/icon"

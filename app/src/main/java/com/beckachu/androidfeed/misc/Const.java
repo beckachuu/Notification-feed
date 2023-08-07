@@ -8,6 +8,7 @@ public class Const {
     public static final Object LOCK_OBJECT = new Object();
 
     public static final int NEGATIVE = -1;
+    public static final String ALL_NOTI = "";
     public static int PAGE_SIZE = 20;
 
     // Feature flags
