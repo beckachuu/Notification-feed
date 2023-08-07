@@ -17,13 +17,13 @@ Project for the Mobile Development course, hopefully will be finished by the end
 - Finished:
     - Listen to notifications
     - Save notifications to database
+    - Choose apps to record
 
 - Todo:
     - Filter notifications by date
     - Save your favorite ones
     - Delete the less favorite ones
     - Notify if new notifications come from your favorite apps
-    - Choose which apps to record from
     - Export logs
     - Import data from logs
 

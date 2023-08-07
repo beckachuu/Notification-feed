@@ -9,6 +9,8 @@ import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
 
+import java.util.HashSet;
+
 public class NotificationHandler {
     private final Context context;
     private final NotiRepository notiRepository;
@@ -32,6 +34,14 @@ public class NotificationHandler {
         if (lastKey.equals(currentKey) && lastTitle.equals(currentTitle) && lastText.equals(currentText)) {
             if (Const.DEBUG)
                 System.out.println("DUPLICATED [" + lastKey + "]: " + notiEntity.getText());
+            return;
+        }
+        final HashSet<String> appList = SharedPrefsManager.getStringSet(sharedPrefs, SharedPrefsManager.APP_LIST);
+        final boolean recordChecked = SharedPrefsManager.getBool(sharedPrefs, SharedPrefsManager.RECORD_CHECKED, true);
+        final String packageName = notiEntity.getPackageName();
+        if (appList.contains(packageName) && !recordChecked) {
+            if (Const.DEBUG)
+                System.out.println("Not recording from this app");
             return;
         }
 

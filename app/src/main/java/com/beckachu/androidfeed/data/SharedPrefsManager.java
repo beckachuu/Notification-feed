@@ -2,9 +2,7 @@ package com.beckachu.androidfeed.data;
 
 import android.content.SharedPreferences;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class SharedPrefsManager {
@@ -14,6 +12,18 @@ public class SharedPrefsManager {
     public static final String LAST_NOTI_KEY = "LAST_KEY";
     public static final String LAST_NOTI_TITLE = "LAST_NOTI_TITLE";
     public static final String LAST_NOTI_TEXT = "LAST_NOTI_TEXT";
+    public static final String APP_LIST = "APP_LIST";
+    public static final String RECORD_CHECKED = "RECORD_PREF";
+
+    public static boolean getBool(SharedPreferences prefs, String key, boolean defaultValue) {
+        return prefs.getBoolean(key, defaultValue);
+    }
+
+    public static void putBool(SharedPreferences prefs, String key, boolean value) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
 
     public static String getString(SharedPreferences prefs, String key, String defaultValue) {
         return prefs.getString(key, defaultValue);
@@ -35,15 +45,15 @@ public class SharedPrefsManager {
         editor.apply();
     }
 
-    public static List<String> getStringList(SharedPreferences prefs, String key) {
+    public static HashSet<String> getStringSet(SharedPreferences prefs, String key) {
         Set<String> set = prefs.getStringSet(key, null);
         if (set != null) {
-            return new ArrayList<>(set);
+            return new HashSet<>(set);
         }
-        return null;
+        return new HashSet<>();
     }
 
-    public static void putStringList(SharedPreferences prefs, String key, List<String> list) {
+    public static void putStringSet(SharedPreferences prefs, String key, HashSet<String> list) {
         Set<String> set = new HashSet<>(list);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putStringSet(key, set);
