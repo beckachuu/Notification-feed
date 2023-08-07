@@ -92,8 +92,8 @@ public class NotiRepository {
                     myAppDao.insertApp(new MyAppEntity(context, notiEntity.getPackageName()));
 
                     // Update notification list screen
-                    NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), NotiListAdapter.getIconCache(),
-                            notiEntity.toString(), Util.format, NotiListAdapter.getLastDate());
+                    NotiModel notiModel = new NotiModel(context, notiEntity, NotiListAdapter.getIconCache(),
+                            Util.format, NotiListAdapter.getLastDate());
                     NotiListAdapter.setLastDate(notiModel.getDate());
                     NotiListAdapter.setNewestNoti(notiModel);
 

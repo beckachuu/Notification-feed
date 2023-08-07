@@ -2,7 +2,6 @@ package com.beckachu.androidfeed.ui.home;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -12,8 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.beckachu.androidfeed.R;
@@ -23,7 +20,6 @@ import com.beckachu.androidfeed.data.models.NotiModel;
 import com.beckachu.androidfeed.data.repositories.NotiRepository;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
-import com.beckachu.androidfeed.ui.noti_detail.DetailsActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,14 +71,29 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.noti_item, parent, false);
         NotiListViewHolder viewHolder = new NotiListViewHolder(view);
         viewHolder.item.setOnClickListener(v -> {
-            String id = (String) v.getTag();
-            if (id != null) {
-                Intent intent = new Intent(context, DetailsActivity.class);
-                intent.putExtra(DetailsActivity.EXTRA_ID, id);
-                Pair<View, String> p1 = Pair.create(viewHolder.icon, "icon");
-                @SuppressWarnings("unchecked") ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(context, p1);
-                context.startActivityForResult(intent, 1, options.toBundle());
+            if (viewHolder.extended) {
+                viewHolder.extended = false;
+                v.setActivated(false);
+                viewHolder.title.setMaxLines(1);
+                viewHolder.text.setVisibility(View.VISIBLE);
+                viewHolder.preview.setVisibility(View.GONE);
+            } else {
+                viewHolder.extended = true;
+                v.setActivated(true);
+                viewHolder.title.setMaxLines(Integer.MAX_VALUE);
+                viewHolder.text.setVisibility(View.GONE);
+                viewHolder.preview.setVisibility(View.VISIBLE);
             }
+
+
+//            String id = (String) v.getTag();
+//            if (id != null) {
+//                Intent intent = new Intent(context, DetailsActivity.class);
+//                intent.putExtra(DetailsActivity.EXTRA_ID, id);
+//                Pair<View, String> p1 = Pair.create(viewHolder.icon, "icon");
+//                @SuppressWarnings("unchecked") ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(context, p1);
+//                context.startActivityForResult(intent, 1, options.toBundle());
+//            }
         });
 
         return viewHolder;
@@ -90,7 +101,7 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull NotiListViewHolder viewHolder, int position) {
-//        if (Const.DEBUG) System.out.println("POSITION: " + position);
+
         if (position == 0) {
             SharedPrefsManager.putInt(sharedPrefs, SharedPrefsManager.UNREAD_COUNT, 0);
         }
@@ -106,9 +117,9 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
         viewHolder.item.setTag("" + notiModel.getId());
         viewHolder.title.setText(notiModel.getTitle());
 
-        viewHolder.preview.setVisibility(View.GONE);
         viewHolder.text.setVisibility(View.VISIBLE);
         viewHolder.text.setText(notiModel.getText());
+        viewHolder.preview.setText(notiModel.getText());
 
 //        if (notiModel.getPreview().length() == 0) {
 //        } else {
@@ -126,7 +137,7 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
         if (position == getItemCount() - 1) {
             loadMoreBeforeId(notiModel.getId());
-            if (Const.DEBUG) System.out.println("Loading more at position " + position);
+//            if (Const.DEBUG) System.out.println("Loading more at position " + position);
         }
     }
 
@@ -146,8 +157,7 @@ public class NotiListAdapter extends RecyclerView.Adapter<NotiListViewHolder> {
 
             for (int i = 0; i < olderNotis.size(); i++) {
                 NotiEntity notiEntity = olderNotis.get(i);
-                NotiModel notiModel = new NotiModel(context, notiEntity.getNid(), iconCache, notiEntity.toString(),
-                        Util.format, lastDate);
+                NotiModel notiModel = new NotiModel(context, notiEntity, iconCache, Util.format, lastDate);
                 lastDate = notiModel.getDate();
                 data.add(notiModel);
             }

@@ -3,6 +3,7 @@ package com.beckachu.androidfeed.data.models;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import com.beckachu.androidfeed.data.entities.NotiEntity;
 import com.beckachu.androidfeed.misc.Const;
 import com.beckachu.androidfeed.misc.Util;
 
@@ -27,17 +28,17 @@ public class NotiModel {
     private String date;
     private boolean showDate;
 
-    public NotiModel(Context context, long id, HashMap<String, Drawable> iconCache, String str,
+    public NotiModel(Context context, NotiEntity notiEntity, HashMap<String, Drawable> iconCache,
                      DateFormat format, String lastDate) {
-        this.id = id;
+        this.id = notiEntity.nid;
         try {
-            JSONObject json = new JSONObject(str);
+            JSONObject json = new JSONObject(notiEntity.toString());
             this.packageName = json.getString("packageName");
             this.appName = Util.getAppNameFromPackage(context, this.packageName, false);
 
             this.title = json.optString("title");
             this.text = json.optString("text");
-            this.preview = (this.title + "\n" + this.text).trim();
+            this.preview = notiEntity.getTextBig();
 
             if (!iconCache.containsKey(this.packageName)) {
                 iconCache.put(this.packageName, Util.getAppIconFromPackage(context, this.packageName));
