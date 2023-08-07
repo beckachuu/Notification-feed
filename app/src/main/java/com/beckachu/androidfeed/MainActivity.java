@@ -32,7 +32,7 @@ import com.beckachu.androidfeed.services.broadcast.AppReceiver;
 import com.beckachu.androidfeed.ui.home.NotiListFragment;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private MyAppRepository myAppRepository;
 
     private FragmentManager fragmentManager;
-    private final Map<String, Fragment> fragmentCache = new HashMap<>();
+    private final Map<String, Fragment> fragmentCache = new LinkedHashMap<>();
 
     private NavigationView navigationView;
     private NavController navController;
@@ -126,29 +126,43 @@ public class MainActivity extends AppCompatActivity {
         List<MyAppEntity> appList = myAppRepository.getAllAppByNameAsc();
         if (appList.size() > 0) {
             for (MyAppEntity myApp : appList) {
-                String packagename = myApp.getPackageName();
+                String packageName = myApp.getPackageName();
                 Drawable appIcon = Util.getAppIconFromByteArray(this, myApp.getIconByte());
                 MenuItem newItem = menu.add(R.id.apps_group, R.id.nav_home, Menu.NONE, myApp.getAppName());
                 newItem.setIcon(appIcon);
 
                 newItem.setOnMenuItemClickListener((item -> {
-                    if (Const.DEBUG) System.out.println("Clicked " + packagename);
-
-                    Fragment fragment = fragmentCache.get(packagename);
-                    if (fragment == null) {
-                        fragment = new NotiListFragment(packagename);
-                        fragmentCache.put(packagename, fragment);
-                    }
-                    
-                    FragmentTransaction fragTrans = getSupportFragmentManager().beginTransaction();
-
-                    fragTrans.setCustomAnimations(com.androidadvance.topsnackbar.R.anim.abc_fade_in, com.androidadvance.topsnackbar.R.anim.abc_shrink_fade_out_from_bottom);
-                    fragTrans.replace(R.id.fragment_container, fragment);
-                    fragTrans.commit();
-
-                    return false;
+                    navigateToNotiListFragment(packageName);
+                    return true;
                 }));
             }
+        }
+    }
+
+    public void navigateToNotiListFragment(String packageName) {
+        Fragment fragment = fragmentCache.get(packageName);
+        if (fragment == null) {
+            fragment = new NotiListFragment(packageName);
+            fragmentCache.put(packageName, fragment);
+            if (fragmentCache.size() > Const.MAX_FRAGMENT_CACHE) {
+                String firstFragmentKey = String.valueOf(fragmentCache.keySet().iterator().next());
+                fragmentCache.remove(firstFragmentKey);
+            }
+
+            if (Const.DEBUG)
+                System.out.println("Fragemnt cache size: " + fragmentCache.size());
+        }
+
+        FragmentTransaction fragTrans = getSupportFragmentManager().beginTransaction();
+
+        fragTrans.setCustomAnimations(com.androidadvance.topsnackbar.R.anim.abc_fade_in, com.androidadvance.topsnackbar.R.anim.abc_shrink_fade_out_from_bottom);
+        fragTrans.replace(R.id.fragment_container, fragment, packageName);
+        fragTrans.commit();
+    }
+
+    public void navigateToNotiListFragment(MenuItem item) {
+        if (item.getItemId() == R.id.nav_home) {
+            navigateToNotiListFragment(Const.ALL_NOTI);
         }
     }
 
