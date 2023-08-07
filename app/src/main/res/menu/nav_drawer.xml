@@ -13,7 +13,9 @@
             <item
                 android:id="@+id/nav_home"
                 android:icon="@drawable/ic_home"
-                android:title="Home" />
+                android:onClick="navigateToNotiListFragment"
+                android:title="Home"
+                android:tooltipText="%" />
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings"
