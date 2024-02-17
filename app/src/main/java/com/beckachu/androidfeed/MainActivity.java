@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
@@ -41,10 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private MyAppRepository myAppRepository;
 
-    private FragmentManager fragmentManager;
     private final Map<String, Fragment> fragmentCache = new LinkedHashMap<>();
 
-    private NavigationView navigationView;
     private NavController navController;
 
     @Override
@@ -52,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         myAppRepository = new MyAppRepository(this);
-        fragmentManager = getSupportFragmentManager();
+        getSupportFragmentManager();
 
         startService(new Intent(this, NotificationListener.class));
 
@@ -81,19 +78,17 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        setSupportActionBar(binding.appBarMain.toolbar);
-
+        setSupportActionBar(binding.appBarMain.topToolbar);
         DrawerLayout drawer = binding.drawerLayout;
 
-        navigationView = binding.navView;
+        NavigationView navigationView = binding.navView;
         navigationView.setItemIconTintList(null);
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home, R.id.nav_settings)
-                .setOpenableLayout(drawer)
-                .build();
+            .setOpenableLayout(drawer)
+            .build();
 
         navController = Navigation.findNavController(this, R.id.fragment_container);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
@@ -169,6 +164,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onSupportNavigateUp() {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+            || super.onSupportNavigateUp();
     }
 }

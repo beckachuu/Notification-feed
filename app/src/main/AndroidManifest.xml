@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.beckachu.androidfeed">
 
-    <!-- Normal Permissions -->
-    <!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
-
-    <!-- Dangerous Permissions -->
-
-
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -20,7 +14,6 @@
         tools:targetApi="31">
 
         <!-- Activities -->
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -28,24 +21,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!--        <activity-->
-        <!--            android:name=".ui.BrowseActivity"-->
-        <!--            android:label="@string/activity_browse"-->
-        <!--            android:parentActivityName=".ui.MainActivity">-->
-        <!--            <meta-data-->
-        <!--                android:name="android.support.PARENT_ACTIVITY"-->
-        <!--                android:value=".ui.MainActivity" />-->
-        <!--        </activity>-->
-
+        </activity> <!-- <activity -->
+        <!-- android:name=".ui.BrowseActivity" -->
+        <!-- android:label="@string/activity_browse" -->
+        <!-- android:parentActivityName=".ui.MainActivity"> -->
+        <!-- <meta-data -->
+        <!-- android:name="android.support.PARENT_ACTIVITY" -->
+        <!-- android:value=".ui.MainActivity" /> -->
+        <!-- </activity> -->
         <activity
             android:name=".ui.noti_detail.DetailsActivity"
-            android:label="@string/activity_details" />
-
-
-        <!-- Services -->
-
+            android:label="@string/activity_details" /> <!-- Services -->
         <service
             android:name=".services.NotificationListener"
             android:exported="false"
@@ -55,18 +41,6 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-
-
-        <!--        <provider-->
-        <!--            android:name="androidx.core.content.FileProvider"-->
-        <!--            android:authorities="org.hcilab.projects.nlogx.fileprovider"-->
-        <!--            android:exported="false"-->
-        <!--            android:grantUriPermissions="true">-->
-        <!--            <meta-data-->
-        <!--                android:name="android.support.FILE_PROVIDER_PATHS"-->
-        <!--                android:resource="@xml/file_paths" />-->
-        <!--        </provider>-->
-
     </application>
 
 </manifest>

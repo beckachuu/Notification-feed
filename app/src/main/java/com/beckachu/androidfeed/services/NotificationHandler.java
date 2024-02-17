@@ -36,10 +36,11 @@ public class NotificationHandler {
                 System.out.println("DUPLICATED [" + lastKey + "]: " + notiEntity.getText());
             return;
         }
+        // Don't save non-selected apps
         final HashSet<String> appList = SharedPrefsManager.getStringSet(sharedPrefs, SharedPrefsManager.APP_LIST);
         final boolean recordChecked = SharedPrefsManager.getBool(sharedPrefs, SharedPrefsManager.RECORD_CHECKED, true);
         final String packageName = notiEntity.getPackageName();
-        if (appList.contains(packageName) && !recordChecked) {
+        if ((appList.contains(packageName) && !recordChecked) || (!appList.contains(packageName) && recordChecked)) {
             if (Const.DEBUG)
                 System.out.println("Not recording from this app");
             return;
